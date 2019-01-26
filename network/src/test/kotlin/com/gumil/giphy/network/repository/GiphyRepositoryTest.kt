@@ -1,20 +1,16 @@
-package com.gumil.giphy.data.repository
+package com.gumil.giphy.network.repository
 
-import com.gumil.giphy.createMockResponse
-import com.gumil.giphy.data.Downsized
-import com.gumil.giphy.data.FixedWidthDownsampled
-import com.gumil.giphy.data.Giphy
-import com.gumil.giphy.data.Images
-import com.gumil.giphy.data.Original
-import com.gumil.giphy.data.network.ApiFactory
-import com.gumil.giphy.readFromFile
-import io.reactivex.android.plugins.RxAndroidPlugins
+import com.gumil.giphy.network.ApiFactory
+import com.gumil.giphy.network.Downsized
+import com.gumil.giphy.network.FixedWidthDownsampled
+import com.gumil.giphy.network.Giphy
+import com.gumil.giphy.network.Images
+import com.gumil.giphy.network.Original
+import com.gumil.giphy.network.createMockResponse
+import com.gumil.giphy.network.readFromFile
 import io.reactivex.observers.TestObserver
-import io.reactivex.schedulers.Schedulers
 import okhttp3.mockwebserver.MockWebServer
-import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Before
 import org.junit.Test
 
 internal class GiphyRepositoryTest {
@@ -22,19 +18,7 @@ internal class GiphyRepositoryTest {
 
     private val giphyApi = ApiFactory.createGiphyApi(true, mockServer.url("/").toString())
 
-    private val repository = GiphyRepository(giphyApi)
-
-    @Before
-    fun setUp() {
-        RxAndroidPlugins.setInitMainThreadSchedulerHandler {
-            Schedulers.trampoline()
-        }
-    }
-
-    @After
-    fun tearDown() {
-        RxAndroidPlugins.reset()
-    }
+    private val repository = com.gumil.giphy.network.repository.GiphyRepository(giphyApi)
 
     @Test
     fun getTrending() {

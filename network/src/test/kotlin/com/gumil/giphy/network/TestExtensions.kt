@@ -1,4 +1,4 @@
-package com.gumil.giphy
+package com.gumil.giphy.network
 
 import okhttp3.mockwebserver.MockResponse
 import java.io.ByteArrayOutputStream

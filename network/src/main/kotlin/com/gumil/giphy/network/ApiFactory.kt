@@ -1,4 +1,4 @@
-package com.gumil.giphy.data.network
+package com.gumil.giphy.network
 
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor

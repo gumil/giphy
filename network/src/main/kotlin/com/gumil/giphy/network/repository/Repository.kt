@@ -1,6 +1,6 @@
-package com.gumil.giphy.data.repository
+package com.gumil.giphy.network.repository
 
-import com.gumil.giphy.data.Giphy
+import com.gumil.giphy.network.Giphy
 import io.reactivex.Observable
 
 interface Repository {

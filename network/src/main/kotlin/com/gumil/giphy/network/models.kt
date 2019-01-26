@@ -1,4 +1,4 @@
-package com.gumil.giphy.data
+package com.gumil.giphy.network
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass

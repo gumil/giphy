@@ -4,6 +4,7 @@ object versions {
     const val moshi = "1.8.0"
     const val retrofit = "2.5.0"
     const val okhttp = "3.12.0"
+    const val koin = "2.0.0-beta-1"
 }
 
 object build {
@@ -48,6 +49,12 @@ object libs {
 
     object rx {
         const val android = "io.reactivex.rxjava2:rxandroid:2.1.0"
+    }
+
+    object koin {
+        const val android = "org.koin:koin-android:${versions.koin}"
+        const val scope = "org.koin:koin-android-scope:${versions.koin}"
+        const val viewModel = "org.koin:koin-android-viewmodel:${versions.koin}"
     }
 
     object test {
