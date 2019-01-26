@@ -1,3 +1,5 @@
+@file:Suppress("unused", "ClassName")
+
 object versions {
     const val kotlin = "1.3.20"
     const val detekt = "1.0.0-RC12"
@@ -52,10 +54,14 @@ object libs {
     }
 
     object koin {
+        const val core = "org.koin:koin-core:${versions.koin}"
         const val android = "org.koin:koin-android:${versions.koin}"
         const val scope = "org.koin:koin-android-scope:${versions.koin}"
         const val viewModel = "org.koin:koin-android-viewmodel:${versions.koin}"
     }
+
+    const val timber = "com.jakewharton.timber:timber:4.7.1"
+    const val leakCanary = "com.squareup.leakcanary:leakcanary-android:1.6.3"
 
     object test {
         const val junit = "junit:junit:4.12"

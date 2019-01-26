@@ -33,6 +33,9 @@ dependencies {
     implementation(libs.koin.android)
     implementation(libs.koin.viewModel)
 
+    implementation(libs.timber)
+    implementation(libs.leakCanary)
+
     implementation(libs.android.appcompat)
     implementation(libs.android.ktx)
 
