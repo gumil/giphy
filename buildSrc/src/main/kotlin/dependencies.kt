@@ -1,6 +1,7 @@
 object versions {
     const val kotlin = "1.3.20"
     const val detekt = "1.0.0-RC12"
+    const val moshi = "1.8.0"
 }
 
 object build {
@@ -28,6 +29,11 @@ object libs {
     object kotlin {
         const val core = "org.jetbrains.kotlin:kotlin-stdlib:${versions.kotlin}"
         const val jdk8 = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${versions.kotlin}"
+    }
+
+    object moshi {
+        const val core = "com.squareup.moshi:moshi:${versions.moshi}"
+        const val codeGen = "com.squareup.moshi:moshi-kotlin-codegen:${versions.moshi}"
     }
 
     object test {

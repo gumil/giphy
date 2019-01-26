@@ -1,5 +1,6 @@
 plugins {
     id("com.android.application")
+    kotlin("kapt")
     kotlin("android")
     kotlin("android.extensions")
     id(projectPlugins.detekt).version(versions.detekt)
@@ -28,11 +29,17 @@ android {
 
 dependencies {
     implementation(libs.kotlin.jdk8)
+
+    implementation(libs.moshi.core)
+    kapt(libs.moshi.codeGen)
+
     implementation(libs.android.appcompat)
     implementation(libs.android.ktx)
+
     testImplementation(libs.test.junit)
     androidTestImplementation(libs.test.androidTestRunner)
     androidTestImplementation(libs.test.espresso)
+
     detektPlugins(libs.detektLint)
 }
 
