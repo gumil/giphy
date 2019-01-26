@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     kotlin("android")
     kotlin("android.extensions")
+    id(projectPlugins.detekt).version(versions.detekt)
 }
 
 android {
@@ -32,4 +33,11 @@ dependencies {
     testImplementation(libs.test.junit)
     androidTestImplementation(libs.test.androidTestRunner)
     androidTestImplementation(libs.test.espresso)
+    detektPlugins(libs.detektLint)
+}
+
+detekt {
+    version = versions.detekt
+    input = files("src/main/java", "src/androidx/java", "src/support/java")
+    filters = ".*test.*,.*/resources/.*,.*/tmp/.*"
 }

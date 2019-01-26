@@ -1,5 +1,6 @@
-private object versions {
+object versions {
     const val kotlin = "1.3.20"
+    const val detekt = "1.0.0-RC12"
 }
 
 object build {
@@ -12,6 +13,10 @@ object build {
         const val minSdkVersion = 21
         const val targetSdkVersion = 28
     }
+}
+
+object projectPlugins {
+    const val detekt = "io.gitlab.arturbosch.detekt"
 }
 
 object libs {
@@ -30,4 +35,6 @@ object libs {
         const val espresso = "androidx.test.espresso:espresso-core:3.1.0"
         const val androidTestRunner = "androidx.test:runner:1.1.0"
     }
+
+    const val detektLint = "io.gitlab.arturbosch.detekt:detekt-formatting:${versions.detekt}"
 }
