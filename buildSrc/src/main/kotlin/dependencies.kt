@@ -2,6 +2,8 @@ object versions {
     const val kotlin = "1.3.20"
     const val detekt = "1.0.0-RC12"
     const val moshi = "1.8.0"
+    const val retrofit = "2.5.0"
+    const val okhttp = "3.12.0"
 }
 
 object build {
@@ -36,8 +38,23 @@ object libs {
         const val codeGen = "com.squareup.moshi:moshi-kotlin-codegen:${versions.moshi}"
     }
 
+    object retrofit {
+        const val core = "com.squareup.retrofit2:retrofit:${versions.retrofit}"
+        const val converter = "com.squareup.retrofit2:converter-moshi:${versions.retrofit}"
+        const val adapter = "com.squareup.retrofit2:adapter-rxjava2:${versions.retrofit}"
+    }
+
+    const val okHttpLogger = "com.squareup.okhttp3:logging-interceptor:${versions.okhttp}"
+
+    object rx {
+        const val android = "io.reactivex.rxjava2:rxandroid:2.1.0"
+    }
+
     object test {
         const val junit = "junit:junit:4.12"
+
+        const val mockWebServer = "com.squareup.okhttp3:mockwebserver:${versions.okhttp}"
+
         const val espresso = "androidx.test.espresso:espresso-core:3.1.0"
         const val androidTestRunner = "androidx.test:runner:1.1.0"
     }
