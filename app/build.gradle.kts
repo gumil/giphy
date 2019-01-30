@@ -1,11 +1,11 @@
+import org.jetbrains.kotlin.gradle.internal.AndroidExtensionsExtension
+
 plugins {
     id("com.android.application")
     kotlin("android")
     kotlin("android.extensions")
     id(projectPlugins.detekt).version(versions.detekt)
 }
-
-java
 
 android {
     compileSdkVersion(build.android.compileSdkVersion)
@@ -28,8 +28,17 @@ android {
     }
 }
 
+androidExtensions {
+    configure(delegateClosureOf<AndroidExtensionsExtension> {
+        isExperimental = true
+    })
+}
+
 dependencies {
     implementation(project(":network"))
+
+    implementation(libs.kaskade.rx)
+
     implementation(libs.koin.android)
     implementation(libs.koin.viewModel)
 

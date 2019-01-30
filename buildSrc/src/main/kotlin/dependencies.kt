@@ -7,6 +7,7 @@ object versions {
     const val retrofit = "2.5.0"
     const val okhttp = "3.12.0"
     const val koin = "2.0.0-beta-1"
+    const val kaskade = "0.2.1"
 }
 
 object build {
@@ -62,6 +63,11 @@ object libs {
 
     const val timber = "com.jakewharton.timber:timber:4.7.1"
     const val leakCanary = "com.squareup.leakcanary:leakcanary-android:1.6.3"
+
+    object kaskade {
+        const val core = "com.github.gumil.kaskade:kaskade:${versions.kaskade}"
+        const val rx = "com.github.gumil.kaskade:kaskade-rx:${versions.kaskade}"
+    }
 
     object test {
         const val junit = "junit:junit:4.12"
