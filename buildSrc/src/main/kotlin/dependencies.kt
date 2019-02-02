@@ -7,7 +7,7 @@ object versions {
     const val retrofit = "2.5.0"
     const val okhttp = "3.12.0"
     const val koin = "2.0.0-beta-1"
-    const val kaskade = "0.2.1"
+    const val kaskade = "0.2.2-test"
 }
 
 object build {
@@ -67,6 +67,7 @@ object libs {
     object kaskade {
         const val core = "com.github.gumil.kaskade:kaskade:${versions.kaskade}"
         const val rx = "com.github.gumil.kaskade:kaskade-rx:${versions.kaskade}"
+        const val livedata = "com.github.gumil.kaskade:kaskade-livedata:${versions.kaskade}"
     }
 
     object test {

@@ -38,6 +38,7 @@ dependencies {
     implementation(project(":network"))
 
     implementation(libs.kaskade.rx)
+    implementation(libs.kaskade.livedata)
 
     implementation(libs.koin.android)
     implementation(libs.koin.viewModel)
