@@ -8,6 +8,7 @@ object versions {
     const val okhttp = "3.12.0"
     const val koin = "2.0.0-beta-1"
     const val kaskade = "0.2.2-test"
+    const val livedata = "2.0.0"
 }
 
 object build {
@@ -74,6 +75,8 @@ object libs {
         const val junit = "junit:junit:4.12"
 
         const val mockWebServer = "com.squareup.okhttp3:mockwebserver:${versions.okhttp}"
+
+        const val livedata = "androidx.arch.core:core-testing:${versions.livedata}"
 
         const val espresso = "androidx.test.espresso:espresso-core:3.1.0"
         const val androidTestRunner = "androidx.test:runner:1.1.0"

@@ -7,6 +7,8 @@ plugins {
     id(projectPlugins.detekt).version(versions.detekt)
 }
 
+apply { from(rootProject.file("buildSrc/kotlin-sources.gradle")) }
+
 android {
     compileSdkVersion(build.android.compileSdkVersion)
     buildToolsVersion(build.android.buildToolsVersion)
@@ -50,6 +52,7 @@ dependencies {
     implementation(libs.android.ktx)
 
     testImplementation(libs.test.junit)
+    testImplementation(libs.test.livedata)
     androidTestImplementation(libs.test.androidTestRunner)
     androidTestImplementation(libs.test.espresso)
 
