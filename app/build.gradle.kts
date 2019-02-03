@@ -48,6 +48,8 @@ dependencies {
     implementation(libs.timber)
     implementation(libs.leakCanary)
 
+    implementation(libs.glide)
+
     implementation(libs.android.appcompat)
     implementation(libs.android.recyclerView)
     implementation(libs.android.ktx)
