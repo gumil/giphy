@@ -10,7 +10,11 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.gumil.giphy.R
 import com.gumil.giphy.util.FooterItem
 import com.gumil.giphy.util.ItemAdapter
+import com.gumil.giphy.util.prefetch
 import com.gumil.giphy.util.showSnackbar
+import com.jakewharton.rxbinding3.swiperefreshlayout.refreshes
+import io.reactivex.Observable
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.fragment_list.*
 import org.koin.android.viewmodel.ext.viewModel
@@ -26,6 +30,8 @@ internal class GiphyListFragment : Fragment() {
 
     private val actionSubject = PublishSubject.create<ListAction>()
 
+    private val compositeDisposable = CompositeDisposable()
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_list, container, false)
     }
@@ -38,21 +44,35 @@ internal class GiphyListFragment : Fragment() {
 
         viewModel.state.observe(this, Observer<ListState> { it?.render() })
 
-        viewModel.process(actions())
+        compositeDisposable.add(viewModel.process(actions()))
 
         savedInstanceState ?: actionSubject.onNext(ListAction.Refresh)
     }
 
-    private fun actions() = actionSubject
+    override fun onDestroyView() {
+        super.onDestroyView()
+        compositeDisposable.dispose()
+    }
+
+    private fun actions() = Observable.merge<ListAction>(
+        actionSubject,
+        adapter.prefetch()
+            .map { adapter.list.size }
+            .map { ListAction.LoadMore(it) },
+        swipeRefreshLayout.refreshes().map { ListAction.Refresh }
+    )
 
     private fun ListState.render(): Unit = when (this) {
         is ListState.Screen -> {
             when(loadingMode) {
                 ListState.Mode.REFRESH -> { swipeRefreshLayout.isRefreshing = true }
                 ListState.Mode.LOAD_MORE -> adapter.showFooter()
-                ListState.Mode.IDLE -> { swipeRefreshLayout.isRefreshing = false }
+                ListState.Mode.IDLE_LOAD_MORE -> { adapter.addItems(giphies) }
+                ListState.Mode.IDLE_REFRESH -> {
+                    swipeRefreshLayout.isRefreshing = false
+                    adapter.list = giphies
+                }
             }
-            adapter.list = giphies
         }
         is ListState.Error -> {
             swipeRefreshLayout.isRefreshing = false

@@ -65,7 +65,7 @@ internal class ItemAdapter<M>(
 
     fun addItems(items: List<M>) {
         _footerItem = null
-        _list.addAll(items)
+        _list.addAll(items.minus(_list))
         notifyItemChanged(currentListSize)
         notifyItemRangeInserted(currentListSize + 1, currentListSize + items.size)
     }

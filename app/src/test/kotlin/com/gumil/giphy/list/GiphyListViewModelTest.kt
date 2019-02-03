@@ -43,9 +43,9 @@ class GiphyListViewModelTest {
 
         viewModel.process(ListAction.Refresh.just())
 
-        verify(exactly = 1) { observer.onChanged(ListState.Screen(emptyList(), ListState.Mode.IDLE)) }
+        verify(exactly = 1) { observer.onChanged(ListState.Screen(emptyList(), ListState.Mode.IDLE_REFRESH)) }
         verify(exactly = 1) { observer.onChanged(ListState.Screen(emptyList(), ListState.Mode.REFRESH)) }
-        verify(exactly = 1) { observer.onChanged(ListState.Screen(list, ListState.Mode.IDLE)) }
+        verify(exactly = 1) { observer.onChanged(ListState.Screen(list, ListState.Mode.IDLE_REFRESH)) }
         confirmVerified(observer)
     }
 
@@ -56,9 +56,9 @@ class GiphyListViewModelTest {
 
         viewModel.process(ListAction.LoadMore(0).just())
 
-        verify(exactly = 1) { observer.onChanged(ListState.Screen(emptyList(), ListState.Mode.IDLE)) }
+        verify(exactly = 1) { observer.onChanged(ListState.Screen(emptyList(), ListState.Mode.IDLE_REFRESH)) }
         verify(exactly = 1) { observer.onChanged(ListState.Screen(emptyList(), ListState.Mode.LOAD_MORE)) }
-        verify(exactly = 1) { observer.onChanged(ListState.Screen(list, ListState.Mode.IDLE)) }
+        verify(exactly = 1) { observer.onChanged(ListState.Screen(list, ListState.Mode.IDLE_LOAD_MORE)) }
         confirmVerified(observer)
     }
 
@@ -69,7 +69,7 @@ class GiphyListViewModelTest {
 
         viewModel.process(ListAction.OnItemClick(list[0]).just())
 
-        verify(exactly = 1) { observer.onChanged(ListState.Screen(emptyList(), ListState.Mode.IDLE)) }
+        verify(exactly = 1) { observer.onChanged(ListState.Screen(emptyList(), ListState.Mode.IDLE_REFRESH)) }
         verify(exactly = 1) { observer.onChanged(ListState.GoToDetail(list[0])) }
         confirmVerified(observer)
     }
@@ -81,7 +81,7 @@ class GiphyListViewModelTest {
 
         viewModel.process(ListAction.OnError(Exception()).just())
 
-        verify(exactly = 1) { observer.onChanged(ListState.Screen(emptyList(), ListState.Mode.IDLE)) }
+        verify(exactly = 1) { observer.onChanged(ListState.Screen(emptyList(), ListState.Mode.IDLE_REFRESH)) }
         verify(exactly = 1) { observer.onChanged(ListState.Error(R.string.error_loading)) }
         confirmVerified(observer)
     }

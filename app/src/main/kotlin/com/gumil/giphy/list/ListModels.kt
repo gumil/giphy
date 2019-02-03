@@ -9,7 +9,7 @@ internal sealed class ListState : State {
 
     data class Screen(
         val giphies: List<GiphyItem> = emptyList(),
-        val loadingMode: Mode = Mode.IDLE
+        val loadingMode: Mode = Mode.IDLE_REFRESH
     ) : ListState()
 
     data class Error(
@@ -21,7 +21,7 @@ internal sealed class ListState : State {
     ) : ListState(), SingleEvent
 
     enum class Mode {
-        REFRESH, LOAD_MORE, IDLE
+        REFRESH, LOAD_MORE, IDLE_REFRESH, IDLE_LOAD_MORE
     }
 }
 

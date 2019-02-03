@@ -56,6 +56,7 @@ object libs {
 
     object rx {
         const val android = "io.reactivex.rxjava2:rxandroid:2.1.0"
+        const val swipeRefreshLayout = "com.jakewharton.rxbinding3:rxbinding-swiperefreshlayout:3.0.0-alpha2"
     }
 
     object koin {

@@ -14,6 +14,7 @@ import io.gumil.kaskade.livedata.stateDamLiveData
 import io.gumil.kaskade.rx.rx
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.disposables.Disposable
 import io.reactivex.observers.DisposableObserver
 import org.koin.android.viewmodel.dsl.viewModel
 import org.koin.dsl.module
@@ -31,8 +32,8 @@ internal class GiphyListViewModel(
 
     private val _state by lazy { kaskade.stateDamLiveData() }
 
-    fun process(actions: Observable<ListAction>) {
-        actions.subscribe { kaskade.process(it) }.also { disposables.add(it) }
+    fun process(actions: Observable<ListAction>): Disposable {
+        return actions.subscribe { kaskade.process(it) }
     }
 
     private fun createKaskade() = Kaskade.create<ListAction, ListState>(ListState.Screen()) {
@@ -53,11 +54,11 @@ internal class GiphyListViewModel(
             }.also { disposables.add(it) }
         }) {
             on<ListAction.Refresh> {
-                loadTrending(0, ListState.Mode.REFRESH)
+                loadTrending(ListState.Mode.REFRESH)
             }
 
             on<ListAction.LoadMore> {
-                loadTrending(0, ListState.Mode.LOAD_MORE)
+                loadTrending(ListState.Mode.LOAD_MORE)
             }
         }
 
@@ -71,28 +72,39 @@ internal class GiphyListViewModel(
     }
 
     private fun <A : ListAction> Observable<ActionState<A, ListState>>.loadTrending(
-        offset: Int,
         mode: ListState.Mode
-    ): Observable<ListState> {
-        return map { ActionState(it.action, it.state as ListState.Screen) }
-            .flatMap { actionState ->
-                repository.getTrending(offset)
-                    .map { giphies ->
-                        val list = mutableListOf<GiphyItem>().apply {
-                            addAll(actionState.state.giphies)
-                            addAll(giphies.map { it.mapToItem() })
-                        }
-                        ListState.Screen(list, ListState.Mode.IDLE)
+    ): Observable<ListState> = this
+        .map {
+            val action = it.action
+            val offset = when (action) {
+                is ListAction.LoadMore -> action.offset
+                is ListAction.Refresh -> 0
+                else -> throw IllegalStateException("Invalid state")
+            }
+            offset to it.state as ListState.Screen
+        }
+        .flatMap { actionState ->
+            repository.getTrending(actionState.first)
+                .map { giphies ->
+                    val items = giphies.map { it.mapToItem() }
+                    val (list, modeIdle) = if (mode == ListState.Mode.LOAD_MORE) {
+                        mutableListOf<GiphyItem>().apply {
+                            addAll(actionState.second.giphies)
+                            addAll(items)
+                        } to ListState.Mode.IDLE_LOAD_MORE
+                    } else {
+                        items to ListState.Mode.IDLE_REFRESH
                     }
-                    .startWith(actionState.state.copy(loadingMode = mode))
-            }
-            .ofType(ListState::class.java)
-            .onErrorReturn {
-                Timber.e(it, "Error loading gifs")
-                ListState.Error(R.string.error_loading)
-            }
-            .applySchedulers()
-    }
+                    ListState.Screen(list, modeIdle)
+                }
+                .startWith(actionState.second.copy(loadingMode = mode))
+        }
+        .ofType(ListState::class.java)
+        .onErrorReturn {
+            Timber.e(it, "Error loading gifs")
+            ListState.Error(R.string.error_loading)
+        }
+        .applySchedulers()
 
     override fun onCleared() {
         super.onCleared()

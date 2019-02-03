@@ -50,6 +50,8 @@ dependencies {
 
     implementation(libs.glide)
 
+    implementation(libs.rx.swipeRefreshLayout)
+
     implementation(libs.android.appcompat)
     implementation(libs.android.recyclerView)
     implementation(libs.android.navigation)
