@@ -85,4 +85,44 @@ class GiphyListViewModelTest {
         verify(exactly = 1) { observer.onChanged(ListState.Error(R.string.error_loading)) }
         confirmVerified(observer)
     }
+
+    @Test
+    fun `restore does not have saved instance should emit refresh`() {
+        val observer = mockk<Observer<ListState>>(relaxed = true)
+        viewModel.state.observeForever(observer)
+
+        viewModel.restore()
+
+        verify(exactly = 1) { observer.onChanged(ListState.Screen(emptyList(), ListState.Mode.IDLE_REFRESH)) }
+        verify(exactly = 1) { observer.onChanged(ListState.Screen(emptyList(), ListState.Mode.REFRESH)) }
+        verify(exactly = 1) { observer.onChanged(ListState.Screen(list, ListState.Mode.IDLE_REFRESH)) }
+        confirmVerified(observer)
+    }
+
+    @Test
+    fun `restore does have saved instance and first call should emit refresh`() {
+        val observer = mockk<Observer<ListState>>(relaxed = true)
+        viewModel.state.observeForever(observer)
+
+        viewModel.restore()
+
+        verify(exactly = 1) { observer.onChanged(ListState.Screen(emptyList(), ListState.Mode.IDLE_REFRESH)) }
+        verify(exactly = 1) { observer.onChanged(ListState.Screen(emptyList(), ListState.Mode.REFRESH)) }
+        verify(exactly = 1) { observer.onChanged(ListState.Screen(list, ListState.Mode.IDLE_REFRESH)) }
+        confirmVerified(observer)
+    }
+
+    @Test
+    fun `restore does have saved instance and two calls should not emit refresh twice`() {
+        val observer = mockk<Observer<ListState>>(relaxed = true)
+        viewModel.state.observeForever(observer)
+
+        viewModel.restore()
+        viewModel.restore()
+
+        verify(exactly = 1) { observer.onChanged(ListState.Screen(emptyList(), ListState.Mode.IDLE_REFRESH)) }
+        verify(exactly = 1) { observer.onChanged(ListState.Screen(emptyList(), ListState.Mode.REFRESH)) }
+        verify(exactly = 1) { observer.onChanged(ListState.Screen(list, ListState.Mode.IDLE_REFRESH)) }
+        confirmVerified(observer)
+    }
 }

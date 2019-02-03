@@ -28,9 +28,16 @@ internal class GiphyListViewModel(
 
     private val kaskade by lazy { createKaskade() }
 
+    private var initialAction: ListAction? = ListAction.Refresh
+
     val state: LiveData<ListState> get() = _state
 
     private val _state by lazy { kaskade.stateDamLiveData() }
+
+    fun restore() {
+        initialAction?.let { kaskade.process(it) }
+        initialAction = null
+    }
 
     fun process(actions: Observable<ListAction>): Disposable {
         return actions.subscribe { kaskade.process(it) }

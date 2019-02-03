@@ -28,8 +28,6 @@ internal class GiphyListFragment : Fragment() {
         footerItem = FooterItem(R.layout.item_progress)
     }
 
-    private val actionSubject = PublishSubject.create<ListAction>()
-
     private val compositeDisposable = CompositeDisposable()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -46,7 +44,7 @@ internal class GiphyListFragment : Fragment() {
 
         compositeDisposable.add(viewModel.process(actions()))
 
-        savedInstanceState ?: actionSubject.onNext(ListAction.Refresh)
+        viewModel.restore()
     }
 
     override fun onDestroyView() {
@@ -55,7 +53,6 @@ internal class GiphyListFragment : Fragment() {
     }
 
     private fun actions() = Observable.merge<ListAction>(
-        actionSubject,
         adapter.prefetch()
             .map { adapter.list.size }
             .map { ListAction.LoadMore(it) },
