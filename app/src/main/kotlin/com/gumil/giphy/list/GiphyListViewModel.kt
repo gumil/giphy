@@ -15,6 +15,8 @@ import io.gumil.kaskade.rx.rx
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.observers.DisposableObserver
+import org.koin.android.viewmodel.dsl.viewModel
+import org.koin.dsl.module
 import timber.log.Timber
 
 internal class GiphyListViewModel(
@@ -98,5 +100,11 @@ internal class GiphyListViewModel(
         super.onCleared()
         kaskade.unsubscribe()
         disposables.clear()
+    }
+
+    companion object {
+        fun creatModule() = module {
+            viewModel { GiphyListViewModel(get()) }
+        }
     }
 }

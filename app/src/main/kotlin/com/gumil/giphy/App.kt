@@ -1,6 +1,7 @@
 package com.gumil.giphy
 
 import android.app.Application
+import com.gumil.giphy.list.GiphyListViewModel
 import com.gumil.giphy.network.createNetworkModule
 import com.squareup.leakcanary.LeakCanary
 import org.koin.core.context.startKoin
@@ -13,6 +14,7 @@ internal class App : Application() {
 
         startKoin {
             modules(createNetworkModule(BuildConfig.DEBUG))
+            modules(GiphyListViewModel.creatModule())
         }
 
         if (BuildConfig.DEBUG) {
