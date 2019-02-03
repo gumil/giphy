@@ -25,9 +25,7 @@ internal class GiphyListViewModel(
 
     private val disposables = CompositeDisposable()
 
-    private val kaskade by lazy {
-        createKaskade()
-    }
+    private val kaskade by lazy { createKaskade() }
 
     val state: LiveData<ListState> get() = _state
 
@@ -72,7 +70,7 @@ internal class GiphyListViewModel(
         }
     }
 
-    private fun <A: ListAction> Observable<ActionState<A, ListState>>.loadTrending(
+    private fun <A : ListAction> Observable<ActionState<A, ListState>>.loadTrending(
         offset: Int,
         mode: ListState.Mode
     ): Observable<ListState> {

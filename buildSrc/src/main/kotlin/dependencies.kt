@@ -33,6 +33,7 @@ object libs {
         const val ktx = "androidx.core:core-ktx:1.0.0"
         const val recyclerView = "androidx.recyclerview:recyclerview:1.0.0"
         const val navigation = "android.arch.navigation:navigation-fragment:1.0.0-alpha11"
+        const val material = "com.google.android.material:material:1.1.0-alpha02"
     }
 
     object kotlin {

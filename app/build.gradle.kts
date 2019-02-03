@@ -52,8 +52,8 @@ dependencies {
 
     implementation(libs.android.appcompat)
     implementation(libs.android.recyclerView)
-    implementation(libs.android.ktx)
     implementation(libs.android.navigation)
+    implementation(libs.android.material)
 
     testImplementation(libs.test.junit)
     testImplementation(libs.test.mockK)
