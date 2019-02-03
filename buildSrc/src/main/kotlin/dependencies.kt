@@ -32,6 +32,7 @@ object libs {
         const val appcompat = "androidx.appcompat:appcompat:1.0.0"
         const val ktx = "androidx.core:core-ktx:1.0.0"
         const val recyclerView = "androidx.recyclerview:recyclerview:1.0.0"
+        const val navigation = "android.arch.navigation:navigation-fragment:1.0.0-alpha11"
     }
 
     object kotlin {

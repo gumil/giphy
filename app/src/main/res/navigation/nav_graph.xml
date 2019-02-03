@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/giphyListFragment">
+
+    <fragment
+        android:id="@+id/giphyListFragment"
+        android:name="com.gumil.giphy.list.GiphyListFragment"
+        android:label="GiphyListFragment"
+        tools:layout="@layout/fragment_list"/>
+
+</navigation>
