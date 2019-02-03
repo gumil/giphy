@@ -52,6 +52,7 @@ dependencies {
     implementation(libs.android.ktx)
 
     testImplementation(libs.test.junit)
+    testImplementation(libs.test.mockK)
     testImplementation(libs.test.livedata)
     androidTestImplementation(libs.test.androidTestRunner)
     androidTestImplementation(libs.test.espresso)

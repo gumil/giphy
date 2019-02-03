@@ -7,7 +7,7 @@ object versions {
     const val retrofit = "2.5.0"
     const val okhttp = "3.12.0"
     const val koin = "2.0.0-beta-1"
-    const val kaskade = "0.2.2-test"
+    const val kaskade = "single-event-SNAPSHOT"
     const val livedata = "2.0.0"
 }
 
@@ -75,6 +75,7 @@ object libs {
         const val junit = "junit:junit:4.12"
 
         const val mockWebServer = "com.squareup.okhttp3:mockwebserver:${versions.okhttp}"
+        const val mockK = "io.mockk:mockk:1.9"
 
         const val livedata = "androidx.arch.core:core-testing:${versions.livedata}"
 

@@ -10,7 +10,7 @@ import com.gumil.giphy.util.applySchedulers
 import com.gumil.giphy.util.just
 import io.gumil.kaskade.ActionState
 import io.gumil.kaskade.Kaskade
-import io.gumil.kaskade.livedata.stateLiveData
+import io.gumil.kaskade.livedata.stateDamLiveData
 import io.gumil.kaskade.rx.rx
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
@@ -23,27 +23,19 @@ internal class GiphyListViewModel(
 
     private val disposables = CompositeDisposable()
 
-    private lateinit var kaskade: Kaskade<ListAction, ListState>
+    private val kaskade by lazy {
+        createKaskade()
+    }
 
     val state: LiveData<ListState> get() = _state
 
-    private val _state by lazy { kaskade.stateLiveData() }
-
-    fun restore(state: ListState = ListState.Screen()) {
-        if (::kaskade.isInitialized.not()) {
-            kaskade = createKaskade(state)
-
-            if (state == ListState.Screen()) {
-                kaskade.process(ListAction.Refresh)
-            }
-        }
-    }
+    private val _state by lazy { kaskade.stateDamLiveData() }
 
     fun process(actions: Observable<ListAction>) {
         actions.subscribe { kaskade.process(it) }.also { disposables.add(it) }
     }
 
-    private fun createKaskade(state: ListState) = Kaskade.create<ListAction, ListState>(state) {
+    private fun createKaskade() = Kaskade.create<ListAction, ListState>(ListState.Screen()) {
         rx({
             object : DisposableObserver<ListState>() {
                 override fun onComplete() {
