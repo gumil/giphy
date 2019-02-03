@@ -49,6 +49,7 @@ dependencies {
     implementation(libs.leakCanary)
 
     implementation(libs.android.appcompat)
+    implementation(libs.android.recyclerView)
     implementation(libs.android.ktx)
 
     testImplementation(libs.test.junit)
