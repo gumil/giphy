@@ -1,3 +1,5 @@
+import java.io.FileInputStream
+import java.util.Properties
 import org.jetbrains.kotlin.gradle.internal.AndroidExtensionsExtension
 
 plugins {
@@ -8,6 +10,11 @@ plugins {
 }
 
 apply { from(rootProject.file("buildSrc/kotlin-sources.gradle")) }
+
+val localPropertiesFile = rootProject.file("local.properties")
+val localProperties = Properties()
+localProperties.load(FileInputStream(localPropertiesFile))
+val apiKey = localProperties["apiKey"] as String
 
 android {
     compileSdkVersion(build.android.compileSdkVersion)
@@ -21,6 +28,8 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "API_KEY", apiKey)
     }
     buildTypes {
         getByName("release") {

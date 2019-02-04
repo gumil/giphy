@@ -2,9 +2,11 @@ package com.gumil.giphy
 
 import android.app.Application
 import com.gumil.giphy.list.GiphyListViewModel
+import com.gumil.giphy.network.NAME_API_KEY
 import com.gumil.giphy.network.createNetworkModule
 import com.squareup.leakcanary.LeakCanary
 import org.koin.core.context.startKoin
+import org.koin.dsl.module
 import timber.log.Timber
 
 internal class App : Application() {
@@ -13,8 +15,13 @@ internal class App : Application() {
         super.onCreate()
 
         startKoin {
-            modules(createNetworkModule(BuildConfig.DEBUG))
-            modules(GiphyListViewModel.creatModule())
+            modules(
+                module {
+                    single(NAME_API_KEY) { BuildConfig.API_KEY }
+                },
+                createNetworkModule(BuildConfig.DEBUG),
+                GiphyListViewModel.creatModule()
+            )
         }
 
         if (BuildConfig.DEBUG) {

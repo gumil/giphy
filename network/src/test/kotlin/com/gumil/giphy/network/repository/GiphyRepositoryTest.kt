@@ -18,7 +18,7 @@ internal class GiphyRepositoryTest {
 
     private val giphyApi = ApiFactory.createGiphyApi(true, mockServer.url("/").toString())
 
-    private val repository = com.gumil.giphy.network.repository.GiphyRepository(giphyApi)
+    private val repository = GiphyRepository(giphyApi, "")
 
     @Test
     fun getTrending() {
