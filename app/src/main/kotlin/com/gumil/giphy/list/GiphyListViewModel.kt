@@ -61,11 +61,18 @@ internal class GiphyListViewModel(
             }.also { disposables.add(it) }
         }) {
             on<ListAction.Refresh> {
-                loadTrending(ListState.Mode.REFRESH)
+                loadTrending(ListState.Mode.REFRESH, { 0 }) { _, list ->
+                    ListState.Screen(list, ListState.Mode.IDLE_REFRESH)
+                }
             }
 
             on<ListAction.LoadMore> {
-                loadTrending(ListState.Mode.LOAD_MORE)
+                loadTrending(ListState.Mode.LOAD_MORE, { it.offset }) { state, list ->
+                    ListState.Screen(
+                        state.giphies.toMutableList().apply { addAll(list) },
+                        ListState.Mode.IDLE_LOAD_MORE
+                    )
+                }
             }
         }
 
@@ -79,30 +86,16 @@ internal class GiphyListViewModel(
     }
 
     private fun <A : ListAction> Observable<ActionState<A, ListState>>.loadTrending(
-        mode: ListState.Mode
+        mode: ListState.Mode,
+        offsetFunction: (A) -> Int,
+        listStateFunction: (ListState.Screen, List<GiphyItem>) -> ListState.Screen
     ): Observable<ListState> = this
-        .map {
-            val action = it.action
-            val offset = when (action) {
-                is ListAction.LoadMore -> action.offset
-                is ListAction.Refresh -> 0
-                else -> throw IllegalStateException("Invalid state")
-            }
-            offset to it.state as ListState.Screen
-        }
+        .map { offsetFunction(it.action) to it.state as ListState.Screen }
         .flatMap { actionState ->
             repository.getTrending(actionState.first)
                 .map { giphies ->
                     val items = giphies.map { it.mapToItem() }
-                    val (list, modeIdle) = if (mode == ListState.Mode.LOAD_MORE) {
-                        mutableListOf<GiphyItem>().apply {
-                            addAll(actionState.second.giphies)
-                            addAll(items)
-                        } to ListState.Mode.IDLE_LOAD_MORE
-                    } else {
-                        items to ListState.Mode.IDLE_REFRESH
-                    }
-                    ListState.Screen(list, modeIdle)
+                    listStateFunction(actionState.second, items)
                 }
                 .startWith(actionState.second.copy(loadingMode = mode))
         }
