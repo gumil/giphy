@@ -6,16 +6,18 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.gumil.giphy.R
+import com.gumil.giphy.detail.GiphyDetailFragment
 import com.gumil.giphy.util.FooterItem
 import com.gumil.giphy.util.ItemAdapter
+import com.gumil.giphy.util.itemClick
 import com.gumil.giphy.util.prefetch
 import com.gumil.giphy.util.showSnackbar
 import com.jakewharton.rxbinding3.swiperefreshlayout.refreshes
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.fragment_list.*
 import org.koin.android.viewmodel.ext.viewModel
 
@@ -28,7 +30,7 @@ internal class GiphyListFragment : Fragment() {
         footerItem = FooterItem(R.layout.item_progress)
     }
 
-    private val compositeDisposable = CompositeDisposable()
+    private lateinit var compositeDisposable: CompositeDisposable
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_list, container, false)
@@ -36,6 +38,7 @@ internal class GiphyListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        compositeDisposable = CompositeDisposable()
 
         recyclerView.layoutManager = StaggeredGridLayoutManager(COLUMNS, StaggeredGridLayoutManager.VERTICAL)
         recyclerView.adapter = adapter
@@ -50,16 +53,18 @@ internal class GiphyListFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         compositeDisposable.dispose()
+        viewModel.state.removeObservers(this)
     }
 
     private fun actions() = Observable.merge<ListAction>(
         adapter.prefetch()
             .map { adapter.list.size }
             .map { ListAction.LoadMore(it) },
-        swipeRefreshLayout.refreshes().map { ListAction.Refresh }
+        swipeRefreshLayout.refreshes().map { ListAction.Refresh },
+        giphyViewItem.itemClick().map { ListAction.OnItemClick(it) }
     )
 
-    private fun ListState.render(): Unit = when (this) {
+    private fun ListState.render(): Unit? = when (this) {
         is ListState.Screen -> {
             when(loadingMode) {
                 ListState.Mode.REFRESH -> { swipeRefreshLayout.isRefreshing = true }
@@ -75,7 +80,10 @@ internal class GiphyListFragment : Fragment() {
             swipeRefreshLayout.isRefreshing = false
             showSnackbar(errorMessage)
         }
-        is ListState.GoToDetail -> TODO()
+        is ListState.GoToDetail -> view
+            ?.findNavController()
+            ?.navigate(R.id.action_giphyListFragment_to_giphyDetailFragment,
+                GiphyDetailFragment.getBundle(giphy))
     }
 
     companion object {

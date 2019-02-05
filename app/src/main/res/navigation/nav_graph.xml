@@ -10,6 +10,19 @@
         android:id="@+id/giphyListFragment"
         android:name="com.gumil.giphy.list.GiphyListFragment"
         android:label="GiphyListFragment"
-        tools:layout="@layout/fragment_list"/>
+        tools:layout="@layout/fragment_list">
+        <action android:id="@+id/action_giphyListFragment_to_giphyDetailFragment"
+                app:destination="@id/giphyDetailFragment"
+                app:enterAnim="@anim/slide_in_from_right"
+                app:exitAnim="@anim/slide_out_to_left"
+                app:popEnterAnim="@anim/slide_in_from_left"
+                app:popExitAnim="@anim/slide_out_to_right"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/giphyDetailFragment"
+        android:name="com.gumil.giphy.detail.GiphyDetailFragment"
+        android:label="GiphyDetailFragment"
+        tools:layout="@layout/fragment_detail"/>
 
 </navigation>
