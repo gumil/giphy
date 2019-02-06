@@ -9,6 +9,7 @@ object versions {
     const val koin = "2.0.0-beta-1"
     const val kaskade = "single-event-SNAPSHOT"
     const val livedata = "2.0.0"
+    const val navigation = "1.0.0-beta01"
 }
 
 object build {
@@ -32,7 +33,11 @@ object libs {
         const val appcompat = "androidx.appcompat:appcompat:1.0.0"
         const val ktx = "androidx.core:core-ktx:1.0.0"
         const val recyclerView = "androidx.recyclerview:recyclerview:1.0.0"
-        const val navigation = "android.arch.navigation:navigation-fragment-ktx:1.0.0-beta01"
+
+        object navigation {
+            const val fragment = "android.arch.navigation:navigation-fragment-ktx:${versions.navigation}"
+            const val ui = "android.arch.navigation:navigation-ui-ktx:${versions.navigation}"
+        }
         const val material = "com.google.android.material:material:1.1.0-alpha02"
     }
 

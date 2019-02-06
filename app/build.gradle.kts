@@ -63,7 +63,8 @@ dependencies {
 
     implementation(libs.android.appcompat)
     implementation(libs.android.recyclerView)
-    implementation(libs.android.navigation)
+    implementation(libs.android.navigation.fragment)
+    implementation(libs.android.navigation.ui)
     implementation(libs.android.material)
 
     testImplementation(libs.test.junit)

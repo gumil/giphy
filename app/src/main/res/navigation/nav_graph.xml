@@ -9,7 +9,6 @@
     <fragment
         android:id="@+id/giphyListFragment"
         android:name="com.gumil.giphy.list.GiphyListFragment"
-        android:label="GiphyListFragment"
         tools:layout="@layout/fragment_list">
         <action android:id="@+id/action_giphyListFragment_to_giphyDetailFragment"
                 app:destination="@id/giphyDetailFragment"
@@ -22,7 +21,6 @@
     <fragment
         android:id="@+id/giphyDetailFragment"
         android:name="com.gumil.giphy.detail.GiphyDetailFragment"
-        android:label="GiphyDetailFragment"
         tools:layout="@layout/fragment_detail"/>
 
 </navigation>
