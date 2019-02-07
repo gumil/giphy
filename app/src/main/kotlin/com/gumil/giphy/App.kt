@@ -20,7 +20,7 @@ internal class App : Application() {
                     single(NAME_API_KEY) { BuildConfig.API_KEY }
                 },
                 createNetworkModule(BuildConfig.DEBUG),
-                GiphyListViewModel.creatModule()
+                GiphyListViewModel.createModule()
             )
         }
 

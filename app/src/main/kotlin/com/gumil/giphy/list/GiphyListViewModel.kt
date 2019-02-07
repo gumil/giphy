@@ -113,7 +113,7 @@ internal class GiphyListViewModel(
     }
 
     companion object {
-        fun creatModule() = module {
+        fun createModule() = module {
             viewModel { GiphyListViewModel(get()) }
         }
     }
