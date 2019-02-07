@@ -1,6 +1,7 @@
 package com.gumil.giphy
 
 import android.app.Application
+import com.gumil.giphy.detail.GiphyDetailViewModel
 import com.gumil.giphy.list.GiphyListViewModel
 import com.gumil.giphy.network.NAME_API_KEY
 import com.gumil.giphy.network.createNetworkModule
@@ -20,7 +21,8 @@ internal class App : Application() {
                     single(NAME_API_KEY) { BuildConfig.API_KEY }
                 },
                 createNetworkModule(BuildConfig.DEBUG),
-                GiphyListViewModel.createModule()
+                GiphyListViewModel.createModule(),
+                GiphyDetailViewModel.creatModule()
             )
         }
 

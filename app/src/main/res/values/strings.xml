@@ -3,5 +3,5 @@
     <string name="error_loading">Error loading gifs</string>
     <string name="error_loading_single">Error loading gif</string>
 
-    <string name="countdown">GIF will change in %1$d</string>
+    <string name="button_random">Get Random GIF</string>
 </resources>

@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import com.gumil.giphy.R
 import com.gumil.giphy.mapToItem
 import com.gumil.giphy.network.repository.Repository
+import com.gumil.giphy.util.applySchedulers
 import io.gumil.kaskade.Kaskade
 import io.gumil.kaskade.livedata.stateDamLiveData
 import io.gumil.kaskade.rx.rx
@@ -55,6 +56,7 @@ internal class GiphyDetailViewModel(
                 flatMap { repository.getRandomGif() }
                     .map { DetailState.Screen(it.mapToItem()) }
                     .ofType(DetailState::class.java)
+                    .applySchedulers()
             }
         }
 
