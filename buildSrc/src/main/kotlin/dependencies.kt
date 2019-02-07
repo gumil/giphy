@@ -1,7 +1,7 @@
 @file:Suppress("unused", "ClassName")
 
 object versions {
-    const val kotlin = "1.3.20"
+    const val kotlin = "1.3.21"
     const val detekt = "1.0.0-RC12"
     const val moshi = "1.8.0"
     const val retrofit = "2.5.0"
@@ -13,7 +13,7 @@ object versions {
 }
 
 object build {
-    const val androidGradle = "com.android.tools.build:gradle:3.3.0"
+    const val androidGradle = "com.android.tools.build:gradle:3.3.1"
     const val kotlinGradle = "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}"
 
     object android {
