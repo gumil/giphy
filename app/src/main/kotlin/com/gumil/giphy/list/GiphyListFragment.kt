@@ -1,6 +1,8 @@
 package com.gumil.giphy.list
 
+import android.content.res.Configuration
 import android.os.Bundle
+import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import com.gumil.giphy.GiphyItem
 import com.gumil.giphy.R
 import com.gumil.giphy.detail.GiphyDetailFragment
 import com.gumil.giphy.util.FooterItem
@@ -32,6 +35,8 @@ internal class GiphyListFragment : Fragment() {
 
     private lateinit var compositeDisposable: CompositeDisposable
 
+    private var pendingRestore: Parcelable? = null
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_list, container, false)
     }
@@ -40,14 +45,25 @@ internal class GiphyListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         compositeDisposable = CompositeDisposable()
 
-        recyclerView.layoutManager = StaggeredGridLayoutManager(COLUMNS, StaggeredGridLayoutManager.VERTICAL)
+        recyclerView.layoutManager = StaggeredGridLayoutManager(getColumnCount(), StaggeredGridLayoutManager.VERTICAL)
         recyclerView.adapter = adapter
 
         viewModel.state.observe(this, Observer<ListState> { it?.render() })
 
         compositeDisposable.add(viewModel.process(actions()))
 
-        viewModel.restore()
+        viewModel.restore(savedInstanceState?.getInt(ARG_LIMIT) ?: ListAction.DEFAULT_LIMIT)
+    }
+
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        pendingRestore = savedInstanceState?.getParcelable(ARG_RECYCLER_LAYOUT)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putParcelable(ARG_RECYCLER_LAYOUT, recyclerView.layoutManager?.onSaveInstanceState())
+        outState.putInt(ARG_LIMIT, adapter.itemCount)
     }
 
     override fun onDestroyView() {
@@ -60,7 +76,7 @@ internal class GiphyListFragment : Fragment() {
         adapter.prefetch()
             .map { adapter.list.size }
             .map { ListAction.LoadMore(it) },
-        swipeRefreshLayout.refreshes().map { ListAction.Refresh },
+        swipeRefreshLayout.refreshes().map { ListAction.Refresh() },
         giphyViewItem.itemClick().map { ListAction.OnItemClick(it) }
     )
 
@@ -69,10 +85,16 @@ internal class GiphyListFragment : Fragment() {
             when(loadingMode) {
                 ListState.Mode.REFRESH -> { swipeRefreshLayout.isRefreshing = true }
                 ListState.Mode.LOAD_MORE -> adapter.showFooter()
-                ListState.Mode.IDLE_LOAD_MORE -> { adapter.addItems(giphies) }
+                ListState.Mode.IDLE_LOAD_MORE -> {
+                    adapter.addItems(giphies)
+
+                    restoreRecyclerView(giphies)
+                }
                 ListState.Mode.IDLE_REFRESH -> {
                     swipeRefreshLayout.isRefreshing = false
                     adapter.list = giphies
+
+                    restoreRecyclerView(giphies)
                 }
             }
         }
@@ -86,7 +108,26 @@ internal class GiphyListFragment : Fragment() {
                 GiphyDetailFragment.getBundle(giphy))
     }
 
+    private fun restoreRecyclerView(giphies: List<GiphyItem>) {
+        if (adapter.itemCount > 0 && giphies.isNotEmpty()) {
+            pendingRestore?.let {
+                recyclerView.post {
+                    recyclerView.layoutManager?.onRestoreInstanceState(it)
+                    pendingRestore = null
+                }
+            }
+        }
+    }
+
+    private fun getColumnCount() = when (resources.configuration.orientation) {
+        Configuration.ORIENTATION_PORTRAIT -> COLUMNS_PORTRAIT
+        else -> COLUMNS_LANDSCAPE
+    }
+
     companion object {
-        private const val COLUMNS = 2
+        private const val ARG_RECYCLER_LAYOUT = "arg_recycler_layout"
+        private const val ARG_LIMIT = "arg_limit"
+        private const val COLUMNS_PORTRAIT = 2
+        private const val COLUMNS_LANDSCAPE = 3
     }
 }

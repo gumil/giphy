@@ -28,14 +28,16 @@ internal class GiphyListViewModel(
 
     private val kaskade by lazy { createKaskade() }
 
-    private var initialAction: ListAction? = ListAction.Refresh
+    private var initialAction: ListAction.Refresh? = ListAction.Refresh()
 
     val state: LiveData<ListState> get() = _state
 
     private val _state by lazy { kaskade.stateDamLiveData() }
 
-    fun restore() {
-        initialAction?.let { kaskade.process(it) }
+    fun restore(limit: Int = ListAction.DEFAULT_LIMIT) {
+        initialAction?.let {
+            kaskade.process(it.copy(limit = limit))
+        }
         initialAction = null
     }
 
@@ -61,17 +63,21 @@ internal class GiphyListViewModel(
             }.also { disposables.add(it) }
         }) {
             on<ListAction.Refresh> {
-                loadTrending(ListState.Mode.REFRESH, { 0 }) { _, list ->
-                    ListState.Screen(list, ListState.Mode.IDLE_REFRESH)
+                flatMap {
+                    loadTrending(ListState.Mode.REFRESH, limit = it.action.limit) { _, list ->
+                        ListState.Screen(list, ListState.Mode.IDLE_REFRESH)
+                    }
                 }
             }
 
             on<ListAction.LoadMore> {
-                loadTrending(ListState.Mode.LOAD_MORE, { it.offset }) { state, list ->
-                    ListState.Screen(
-                        state.giphies.toMutableList().apply { addAll(list) },
-                        ListState.Mode.IDLE_LOAD_MORE
-                    )
+                flatMap {
+                    loadTrending(ListState.Mode.LOAD_MORE, it.action.offset) { state, list ->
+                        ListState.Screen(
+                            state.giphies.toMutableList().apply { addAll(list) },
+                            ListState.Mode.IDLE_LOAD_MORE
+                        )
+                    }
                 }
             }
         }
@@ -87,17 +93,18 @@ internal class GiphyListViewModel(
 
     private fun <A : ListAction> Observable<ActionState<A, ListState>>.loadTrending(
         mode: ListState.Mode,
-        offsetFunction: (A) -> Int,
+        offset: Int = 0,
+        limit: Int = 10,
         listStateFunction: (ListState.Screen, List<GiphyItem>) -> ListState.Screen
     ): Observable<ListState> = this
-        .map { offsetFunction(it.action) to it.state as ListState.Screen }
-        .flatMap { actionState ->
-            repository.getTrending(actionState.first)
+        .map { it.state as ListState.Screen }
+        .flatMap { state ->
+            repository.getTrending(offset, limit)
                 .map { giphies ->
                     val items = giphies.map { it.mapToItem() }
-                    listStateFunction(actionState.second, items)
+                    listStateFunction(state, items)
                 }
-                .startWith(actionState.second.copy(loadingMode = mode))
+                .startWith(state.copy(loadingMode = mode))
         }
         .ofType(ListState::class.java)
         .onErrorReturn {

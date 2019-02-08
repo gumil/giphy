@@ -27,7 +27,9 @@ internal sealed class ListState : State {
 
 internal sealed class ListAction : Action {
 
-    object Refresh : ListAction()
+    data class Refresh(
+        val limit: Int = DEFAULT_LIMIT
+    ) : ListAction()
 
     data class LoadMore(
         val offset: Int
@@ -40,4 +42,8 @@ internal sealed class ListAction : Action {
     data class OnError(
         val throwable: Throwable
     ) : ListAction()
+
+    companion object {
+        const val DEFAULT_LIMIT = 20
+    }
 }

@@ -41,7 +41,7 @@ class GiphyListViewModelTest {
         val observer = mockk<Observer<ListState>>(relaxed = true)
         viewModel.state.observeForever(observer)
 
-        viewModel.process(ListAction.Refresh.just())
+        viewModel.process(ListAction.Refresh().just())
 
         verify(exactly = 1) { observer.onChanged(ListState.Screen(emptyList(), ListState.Mode.IDLE_REFRESH)) }
         verify(exactly = 1) { observer.onChanged(ListState.Screen(emptyList(), ListState.Mode.REFRESH)) }
