@@ -1,6 +1,5 @@
 package com.gumil.giphy.list
 
-import android.content.res.Configuration
 import android.os.Bundle
 import android.os.Parcelable
 import android.view.LayoutInflater
@@ -47,7 +46,7 @@ internal class GiphyListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         compositeDisposable = CompositeDisposable()
 
-        recyclerView.layoutManager = StaggeredGridLayoutManager(getColumnCount(), StaggeredGridLayoutManager.VERTICAL)
+        recyclerView.layoutManager = StaggeredGridLayoutManager(COLUMNS, StaggeredGridLayoutManager.VERTICAL)
         recyclerView.adapter = adapter
 
         viewModel.state.observe(this, Observer<ListState> { it?.render() })
@@ -59,7 +58,9 @@ internal class GiphyListFragment : Fragment() {
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
         super.onViewStateRestored(savedInstanceState)
-        pendingRestore = savedInstanceState?.getParcelable(ARG_RECYCLER_LAYOUT)
+        pendingRestore ?: run {
+            pendingRestore = savedInstanceState?.getParcelable(ARG_RECYCLER_LAYOUT)
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -121,6 +122,9 @@ internal class GiphyListFragment : Fragment() {
             ?.findNavController()
             ?.navigate(R.id.action_giphyListFragment_to_giphyDetailFragment,
                 GiphyDetailFragment.getBundle(giphy))
+            ?.also {
+                pendingRestore = recyclerView.layoutManager?.onSaveInstanceState()
+            }
     }
 
     private fun restoreRecyclerView(giphies: List<GiphyItem>) {
@@ -128,22 +132,17 @@ internal class GiphyListFragment : Fragment() {
             pendingRestore?.let {
                 recyclerView.post {
                     recyclerView.layoutManager?.onRestoreInstanceState(it)
+                    (recyclerView.layoutManager as StaggeredGridLayoutManager).invalidateSpanAssignments()
                     pendingRestore = null
                 }
             }
         }
     }
 
-    private fun getColumnCount() = when (resources.configuration.orientation) {
-        Configuration.ORIENTATION_PORTRAIT -> COLUMNS_PORTRAIT
-        else -> COLUMNS_LANDSCAPE
-    }
-
     companion object {
         private const val ARG_RECYCLER_LAYOUT = "arg_recycler_layout"
         private const val ARG_LIMIT = "arg_limit"
-        private const val COLUMNS_PORTRAIT = 2
-        private const val COLUMNS_LANDSCAPE = 3
+        private const val COLUMNS = 2
         private const val VISIBLE_THRESHOLD = 2
     }
 }
