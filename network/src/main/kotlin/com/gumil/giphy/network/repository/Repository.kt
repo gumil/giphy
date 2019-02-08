@@ -5,7 +5,7 @@ import io.reactivex.Observable
 
 interface Repository {
 
-    fun getTrending(offset: Int = 0, limit: Int = 10): Observable<List<Giphy>>
+    fun getTrending(offset: Int = 0, limit: Int = 20): Observable<List<Giphy>>
 
     fun getRandomGif(): Observable<Giphy>
 }
