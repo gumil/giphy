@@ -10,6 +10,7 @@ object versions {
     const val kaskade = "single-event-SNAPSHOT"
     const val livedata = "2.0.0"
     const val navigation = "1.0.0-beta01"
+    const val rxBinding = "3.0.0-alpha2"
 }
 
 object build {
@@ -61,7 +62,8 @@ object libs {
 
     object rx {
         const val android = "io.reactivex.rxjava2:rxandroid:2.1.0"
-        const val swipeRefreshLayout = "com.jakewharton.rxbinding3:rxbinding-swiperefreshlayout:3.0.0-alpha2"
+        const val swipeRefreshLayout = "com.jakewharton.rxbinding3:rxbinding-swiperefreshlayout:${versions.rxBinding}"
+        const val recyclerView = "com.jakewharton.rxbinding3:rxbinding-recyclerview:${versions.rxBinding}"
     }
 
     object koin {

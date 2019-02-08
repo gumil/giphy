@@ -16,8 +16,8 @@ import com.gumil.giphy.detail.GiphyDetailFragment
 import com.gumil.giphy.util.FooterItem
 import com.gumil.giphy.util.ItemAdapter
 import com.gumil.giphy.util.itemClick
-import com.gumil.giphy.util.prefetch
 import com.gumil.giphy.util.showSnackbar
+import com.jakewharton.rxbinding3.recyclerview.scrollEvents
 import com.jakewharton.rxbinding3.swiperefreshlayout.refreshes
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
@@ -36,6 +36,8 @@ internal class GiphyListFragment : Fragment() {
     private lateinit var compositeDisposable: CompositeDisposable
 
     private var pendingRestore: Parcelable? = null
+
+    private var isLoading = true
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_list, container, false)
@@ -73,9 +75,20 @@ internal class GiphyListFragment : Fragment() {
     }
 
     private fun actions() = Observable.merge<ListAction>(
-        adapter.prefetch()
-            .map { adapter.list.size }
-            .map { ListAction.LoadMore(it) },
+        recyclerView.scrollEvents()
+            .filter { pendingRestore == null }
+            .filter { it.dy > 0 }
+            .filter { !isLoading }
+            .filter {
+                val layoutManager = it.view.layoutManager as StaggeredGridLayoutManager
+                val visibleItemCount = recyclerView.childCount
+                val totalItemCount = layoutManager.itemCount
+                val firstVisibleItem = layoutManager.findFirstVisibleItemPositions(null).first()
+
+                totalItemCount - visibleItemCount <= firstVisibleItem + VISIBLE_THRESHOLD
+            }
+            .map { ListAction.LoadMore(adapter.list.size) }
+            .doOnNext { isLoading = true },
         swipeRefreshLayout.refreshes().map { ListAction.Refresh() },
         giphyViewItem.itemClick().map { ListAction.OnItemClick(it) }
     )
@@ -87,12 +100,14 @@ internal class GiphyListFragment : Fragment() {
                 ListState.Mode.LOAD_MORE -> adapter.showFooter()
                 ListState.Mode.IDLE_LOAD_MORE -> {
                     adapter.addItems(giphies)
+                    isLoading = false
 
                     restoreRecyclerView(giphies)
                 }
                 ListState.Mode.IDLE_REFRESH -> {
                     swipeRefreshLayout.isRefreshing = false
                     adapter.list = giphies
+                    isLoading = false
 
                     restoreRecyclerView(giphies)
                 }
@@ -129,5 +144,6 @@ internal class GiphyListFragment : Fragment() {
         private const val ARG_LIMIT = "arg_limit"
         private const val COLUMNS_PORTRAIT = 2
         private const val COLUMNS_LANDSCAPE = 3
+        private const val VISIBLE_THRESHOLD = 2
     }
 }
