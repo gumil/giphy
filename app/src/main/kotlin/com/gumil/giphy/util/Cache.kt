@@ -1,6 +1,10 @@
 package com.gumil.giphy.util
 
-import java.lang.ClassCastException
+import android.content.Context
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
 
 interface Cache {
 
@@ -9,19 +13,34 @@ interface Cache {
     fun <T> get(key: String): T?
 }
 
-internal class InMemoryCache: Cache {
-
-    private val cache = mutableMapOf<String, Any>()
+internal class DiskCache(
+    private val context: Context
+): Cache {
 
     override fun <T: Any> save(key: String, item: T) {
-        cache[key] = item
+        ByteArrayOutputStream().use { stream ->
+            ObjectOutputStream(stream).use {
+                it.writeObject(item)
+                it.flush()
+            }
+
+            context.openFileOutput(key, Context.MODE_PRIVATE).use {
+                it.write(stream.toByteArray())
+            }
+        }
     }
 
     override fun <T> get(key: String): T? {
-        return try {
-            cache[key] as T
-        } catch (e: ClassCastException) {
-            null
+        return context.openFileInput(key).use { inputStream ->
+            ByteArrayInputStream(inputStream.readBytes()).use { stream ->
+                ObjectInputStream(stream).use {
+                    try {
+                        it.readObject() as T
+                    } catch (e: ClassCastException) {
+                        null
+                    }
+                }
+            }
         }
     }
 }

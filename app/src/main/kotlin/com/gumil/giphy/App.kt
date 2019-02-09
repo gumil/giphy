@@ -6,8 +6,9 @@ import com.gumil.giphy.list.GiphyListViewModel
 import com.gumil.giphy.network.NAME_API_KEY
 import com.gumil.giphy.network.createNetworkModule
 import com.gumil.giphy.util.Cache
-import com.gumil.giphy.util.InMemoryCache
+import com.gumil.giphy.util.DiskCache
 import com.squareup.leakcanary.LeakCanary
+import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
 import timber.log.Timber
@@ -20,8 +21,9 @@ internal class App : Application() {
         startKoin {
             modules(
                 module {
+                    androidContext(this@App)
                     single(NAME_API_KEY) { BuildConfig.API_KEY }
-                    single<Cache> { InMemoryCache() }
+                    single<Cache> { DiskCache(get()) }
                 },
                 createNetworkModule(BuildConfig.DEBUG),
                 GiphyListViewModel.createModule(),
