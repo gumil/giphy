@@ -9,7 +9,9 @@ import com.gumil.giphy.TestRepository
 import com.gumil.giphy.UserItem
 import com.gumil.giphy.util.just
 import com.gumil.giphy.TrampolineSchedulerRule
+import com.gumil.giphy.util.Cache
 import io.mockk.confirmVerified
+import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.Rule
@@ -34,7 +36,9 @@ class GiphyListViewModelTest {
             ImageItem("downsized", "downsampled", 50, 50))
     )
 
-    private val viewModel = GiphyListViewModel(TestRepository())
+    private val cache = mockk<Cache>(relaxed = true)
+
+    private val viewModel = GiphyListViewModel(TestRepository(), cache)
 
     @Test
     fun actionRefresh() {
@@ -43,6 +47,7 @@ class GiphyListViewModelTest {
 
         viewModel.process(ListAction.Refresh().just())
 
+        verify(exactly = 0) { cache.get<List<GiphyItem>>(any()) }
         verify(exactly = 1) { observer.onChanged(ListState.Screen(emptyList(), ListState.Mode.IDLE_REFRESH)) }
         verify(exactly = 1) { observer.onChanged(ListState.Screen(emptyList(), ListState.Mode.REFRESH)) }
         verify(exactly = 1) { observer.onChanged(ListState.Screen(list, ListState.Mode.IDLE_REFRESH)) }
@@ -59,6 +64,7 @@ class GiphyListViewModelTest {
         verify(exactly = 1) { observer.onChanged(ListState.Screen(emptyList(), ListState.Mode.IDLE_REFRESH)) }
         verify(exactly = 1) { observer.onChanged(ListState.Screen(emptyList(), ListState.Mode.LOAD_MORE)) }
         verify(exactly = 1) { observer.onChanged(ListState.Screen(list, ListState.Mode.IDLE_LOAD_MORE)) }
+        verify(exactly = 1) { cache.save<Any>(any(), any()) }
         confirmVerified(observer)
     }
 
@@ -106,6 +112,7 @@ class GiphyListViewModelTest {
 
         viewModel.restore()
 
+        verify(exactly = 0) { cache.get<List<GiphyItem>>(any()) }
         verify(exactly = 1) { observer.onChanged(ListState.Screen(emptyList(), ListState.Mode.IDLE_REFRESH)) }
         verify(exactly = 1) { observer.onChanged(ListState.Screen(emptyList(), ListState.Mode.REFRESH)) }
         verify(exactly = 1) { observer.onChanged(ListState.Screen(list, ListState.Mode.IDLE_REFRESH)) }
@@ -120,9 +127,40 @@ class GiphyListViewModelTest {
         viewModel.restore()
         viewModel.restore()
 
+        verify(exactly = 0) { cache.get<List<GiphyItem>>(any()) }
         verify(exactly = 1) { observer.onChanged(ListState.Screen(emptyList(), ListState.Mode.IDLE_REFRESH)) }
         verify(exactly = 1) { observer.onChanged(ListState.Screen(emptyList(), ListState.Mode.REFRESH)) }
         verify(exactly = 1) { observer.onChanged(ListState.Screen(list, ListState.Mode.IDLE_REFRESH)) }
+        confirmVerified(observer)
+    }
+
+    @Test
+    fun `restore with limit greater than default not in cache`() {
+        val observer = mockk<Observer<ListState>>(relaxed = true)
+        viewModel.state.observeForever(observer)
+        every { cache.get<List<GiphyItem>>(any()) } returns null
+
+        viewModel.restore(30)
+
+        verify(exactly = 1) { cache.get<List<GiphyItem>>(any()) }
+        verify(exactly = 1) { observer.onChanged(ListState.Screen(emptyList(), ListState.Mode.IDLE_REFRESH)) }
+        verify(exactly = 1) { observer.onChanged(ListState.Screen(emptyList(), ListState.Mode.REFRESH)) }
+        verify(exactly = 1) { observer.onChanged(ListState.Screen(list, ListState.Mode.IDLE_REFRESH)) }
+        confirmVerified(observer)
+    }
+
+    @Test
+    fun `restore with limit greater than default and in cache`() {
+        val observer = mockk<Observer<ListState>>(relaxed = true)
+        viewModel.state.observeForever(observer)
+        every { cache.get<List<GiphyItem>>(any()) } returns list
+
+        viewModel.restore(30)
+
+        verify(exactly = 1) { cache.get<List<GiphyItem>>(any()) }
+        verify(exactly = 1) { observer.onChanged(ListState.Screen(emptyList(), ListState.Mode.IDLE_REFRESH)) }
+        verify(exactly = 1) { observer.onChanged(ListState.Screen(list, ListState.Mode.IDLE_REFRESH)) }
+        verify(exactly = 0) { observer.onChanged(ListState.Screen(emptyList(), ListState.Mode.REFRESH)) }
         confirmVerified(observer)
     }
 }

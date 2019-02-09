@@ -5,6 +5,8 @@ import com.gumil.giphy.detail.GiphyDetailViewModel
 import com.gumil.giphy.list.GiphyListViewModel
 import com.gumil.giphy.network.NAME_API_KEY
 import com.gumil.giphy.network.createNetworkModule
+import com.gumil.giphy.util.Cache
+import com.gumil.giphy.util.InMemoryCache
 import com.squareup.leakcanary.LeakCanary
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
@@ -19,6 +21,7 @@ internal class App : Application() {
             modules(
                 module {
                     single(NAME_API_KEY) { BuildConfig.API_KEY }
+                    single<Cache> { InMemoryCache() }
                 },
                 createNetworkModule(BuildConfig.DEBUG),
                 GiphyListViewModel.createModule(),

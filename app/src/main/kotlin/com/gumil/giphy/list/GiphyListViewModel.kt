@@ -6,6 +6,7 @@ import com.gumil.giphy.GiphyItem
 import com.gumil.giphy.R
 import com.gumil.giphy.mapToItem
 import com.gumil.giphy.network.repository.Repository
+import com.gumil.giphy.util.Cache
 import com.gumil.giphy.util.applySchedulers
 import com.gumil.giphy.util.just
 import io.gumil.kaskade.ActionState
@@ -21,7 +22,8 @@ import org.koin.dsl.module
 import timber.log.Timber
 
 internal class GiphyListViewModel(
-    private val repository: Repository
+    private val repository: Repository,
+    private val cache: Cache
 ) : ViewModel() {
 
     private val disposables = CompositeDisposable()
@@ -64,6 +66,12 @@ internal class GiphyListViewModel(
         }) {
             on<ListAction.Refresh> {
                 flatMap {
+                    if (it.action.limit > ListAction.DEFAULT_LIMIT) {
+                        cache.get<List<GiphyItem>>(KEY_GIPHIES)?.let { giphies ->
+                            return@flatMap ListState.Screen(giphies, ListState.Mode.IDLE_REFRESH).just()
+                        }
+                    }
+
                     loadTrending(ListState.Mode.REFRESH, limit = it.action.limit) { _, list ->
                         ListState.Screen(list, ListState.Mode.IDLE_REFRESH)
                     }
@@ -76,7 +84,9 @@ internal class GiphyListViewModel(
                         ListState.Screen(
                             state.giphies.toMutableList().apply { addAll(list) },
                             ListState.Mode.IDLE_LOAD_MORE
-                        )
+                        ).also { screen ->
+                            cache.save(KEY_GIPHIES, screen.giphies)
+                        }
                     }
                 }
             }
@@ -120,8 +130,10 @@ internal class GiphyListViewModel(
     }
 
     companion object {
+        private const val KEY_GIPHIES = "key giphies"
+
         fun createModule() = module {
-            viewModel { GiphyListViewModel(get()) }
+            viewModel { GiphyListViewModel(get(), get()) }
         }
     }
 }
