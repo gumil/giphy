@@ -8,6 +8,10 @@ if (project.plugins.hasPlugin("kotlin-android")) {
         sourceCompatibility = "1.8"
         targetCompatibility = "1.8"
     }
+
+    project.android.kotlinOptions {
+        jvmTarget = "1.8"
+    }
 } else {
     project.sourceSets {
         main.java.srcDirs += 'src/main/kotlin'

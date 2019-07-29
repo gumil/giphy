@@ -1,27 +1,27 @@
 @file:Suppress("unused", "ClassName")
 
 object versions {
-    const val kotlin = "1.3.21"
-    const val detekt = "1.0.0-RC12"
+    const val kotlin = "1.3.41"
+    const val detekt = "1.0.0-RC16"
     const val moshi = "1.8.0"
-    const val retrofit = "2.5.0"
-    const val okhttp = "3.12.0"
-    const val koin = "2.0.0-beta-1"
-    const val kaskade = "single-event-SNAPSHOT"
+    const val retrofit = "2.6.0"
+    const val okhttp = "4.0.1"
+    const val koin = "2.0.1"
+    const val kaskade = "0.2.3"
     const val livedata = "2.0.0"
-    const val navigation = "1.0.0-beta01"
+    const val navigation = "2.1.0-beta02"
     const val rxBinding = "3.0.0-alpha2"
 }
 
 object build {
-    const val androidGradle = "com.android.tools.build:gradle:3.3.1"
+    const val androidGradle = "com.android.tools.build:gradle:3.4.2"
     const val kotlinGradle = "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}"
 
     object android {
-        const val buildToolsVersion = "28.0.3"
-        const val compileSdkVersion = 28
+        const val buildToolsVersion = "29.0.1"
+        const val compileSdkVersion = 29
         const val minSdkVersion = 21
-        const val targetSdkVersion = 28
+        const val targetSdkVersion = 29
     }
 }
 
@@ -31,15 +31,15 @@ object projectPlugins {
 
 object libs {
     object android {
-        const val appcompat = "androidx.appcompat:appcompat:1.0.0"
-        const val ktx = "androidx.core:core-ktx:1.0.0"
-        const val recyclerView = "androidx.recyclerview:recyclerview:1.0.0"
+        const val appcompat = "androidx.appcompat:appcompat:1.1.0-rc01"
+        const val ktx = "androidx.core:core-ktx:1.2.0-alpha01"
+        const val recyclerView = "androidx.recyclerview:recyclerview:1.1.0-beta01"
 
         object navigation {
-            const val fragment = "android.arch.navigation:navigation-fragment-ktx:${versions.navigation}"
-            const val ui = "android.arch.navigation:navigation-ui-ktx:${versions.navigation}"
+            const val fragment = "androidx.navigation:navigation-fragment-ktx:${versions.navigation}"
+            const val ui = "androidx.navigation:navigation-ui-ktx:${versions.navigation}"
         }
-        const val material = "com.google.android.material:material:1.1.0-alpha02"
+        const val material = "com.google.android.material:material:1.1.0-alpha08"
     }
 
     object kotlin {
@@ -61,7 +61,7 @@ object libs {
     const val okHttpLogger = "com.squareup.okhttp3:logging-interceptor:${versions.okhttp}"
 
     object rx {
-        const val android = "io.reactivex.rxjava2:rxandroid:2.1.0"
+        const val android = "io.reactivex.rxjava2:rxandroid:2.1.1"
         const val swipeRefreshLayout = "com.jakewharton.rxbinding3:rxbinding-swiperefreshlayout:${versions.rxBinding}"
         const val recyclerView = "com.jakewharton.rxbinding3:rxbinding-recyclerview:${versions.rxBinding}"
     }
@@ -82,13 +82,13 @@ object libs {
         const val livedata = "com.github.gumil.kaskade:kaskade-livedata:${versions.kaskade}"
     }
 
-    const val glide = "com.github.bumptech.glide:glide:4.8.0"
+    const val glide = "com.github.bumptech.glide:glide:4.9.0"
 
     object test {
         const val junit = "junit:junit:4.12"
 
         const val mockWebServer = "com.squareup.okhttp3:mockwebserver:${versions.okhttp}"
-        const val mockK = "io.mockk:mockk:1.9"
+        const val mockK = "io.mockk:mockk:1.9.3"
 
         const val livedata = "androidx.arch.core:core-testing:${versions.livedata}"
 

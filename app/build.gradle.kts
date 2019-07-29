@@ -1,6 +1,5 @@
 import java.io.FileInputStream
 import java.util.Properties
-import org.jetbrains.kotlin.gradle.internal.AndroidExtensionsExtension
 
 plugins {
     id("com.android.application")
@@ -40,14 +39,13 @@ android {
 }
 
 androidExtensions {
-    configure(delegateClosureOf<AndroidExtensionsExtension> {
-        isExperimental = true
-    })
+    isExperimental = true
 }
 
 dependencies {
     implementation(project(":network"))
 
+    implementation(libs.kaskade.core)
     implementation(libs.kaskade.rx)
     implementation(libs.kaskade.livedata)
 
@@ -80,5 +78,4 @@ dependencies {
 detekt {
     version = versions.detekt
     input = files("src/main/java", "src/androidx/java", "src/support/java")
-    filters = ".*test.*,.*/resources/.*,.*/tmp/.*"
 }
