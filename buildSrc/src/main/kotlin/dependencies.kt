@@ -73,6 +73,12 @@ object libs {
         const val viewModel = "org.koin:koin-android-viewmodel:${versions.koin}"
     }
 
+    object dagger {
+        private const val version = 2.24
+        const val core = "com.google.dagger:dagger:$version"
+        const val annotation = "com.google.dagger:dagger-compiler:$version"
+    }
+
     const val timber = "com.jakewharton.timber:timber:4.7.1"
     const val leakCanary = "com.squareup.leakcanary:leakcanary-android:1.6.3"
 

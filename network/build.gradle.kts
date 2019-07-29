@@ -10,6 +10,8 @@ dependencies {
     api(libs.kotlin.jdk8)
 
     implementation(libs.koin.core)
+    api(libs.dagger.core)
+    kapt(libs.dagger.annotation)
 
     implementation(libs.moshi.core)
     kapt(libs.moshi.codeGen)

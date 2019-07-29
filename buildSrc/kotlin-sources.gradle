@@ -15,6 +15,7 @@ if (project.plugins.hasPlugin("kotlin-android")) {
 } else {
     project.sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
+        main.java.srcDirs += 'build/generated/source'
         test.java.srcDirs += 'src/test/kotlin'
     }
 
