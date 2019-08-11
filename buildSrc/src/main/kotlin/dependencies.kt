@@ -45,6 +45,7 @@ object libs {
     object kotlin {
         const val core = "org.jetbrains.kotlin:kotlin-stdlib:${versions.kotlin}"
         const val jdk8 = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${versions.kotlin}"
+        const val coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.0-RC2"
     }
 
     object moshi {
