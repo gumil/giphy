@@ -9,10 +9,10 @@ import com.gumil.giphy.network.repository.Repository
 import com.gumil.giphy.util.Cache
 import com.gumil.giphy.util.applySchedulers
 import com.gumil.giphy.util.just
-import io.gumil.kaskade.ActionState
-import io.gumil.kaskade.Kaskade
-import io.gumil.kaskade.livedata.stateDamLiveData
-import io.gumil.kaskade.rx.rx
+import dev.gumil.kaskade.ActionState
+import dev.gumil.kaskade.Kaskade
+import dev.gumil.kaskade.livedata.stateDamLiveData
+import dev.gumil.kaskade.rx.rx
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
@@ -107,7 +107,7 @@ internal class GiphyListViewModel(
         limit: Int = 10,
         listStateFunction: (ListState.Screen, List<GiphyItem>) -> ListState.Screen
     ): Observable<ListState> = this
-        .map { it.state as ListState.Screen }
+        .map { it.currentState as ListState.Screen }
         .flatMap { state ->
             repository.getTrending(offset, limit)
                 .map { giphies ->

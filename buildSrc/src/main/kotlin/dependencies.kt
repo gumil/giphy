@@ -7,7 +7,7 @@ object versions {
     const val retrofit = "2.6.0"
     const val okhttp = "4.0.1"
     const val koin = "2.0.1"
-    const val kaskade = "0.2.3"
+    const val kaskade = "0.3.5"
     const val livedata = "2.0.0"
     const val navigation = "2.1.0-beta02"
     const val rxBinding = "3.0.0-alpha2"
@@ -77,9 +77,10 @@ object libs {
     const val leakCanary = "com.squareup.leakcanary:leakcanary-android:1.6.3"
 
     object kaskade {
-        const val core = "com.github.gumil.kaskade:kaskade:${versions.kaskade}"
-        const val rx = "com.github.gumil.kaskade:kaskade-rx:${versions.kaskade}"
-        const val livedata = "com.github.gumil.kaskade:kaskade-livedata:${versions.kaskade}"
+        const val core = "dev.gumil.kaskade:core:${versions.kaskade}"
+        const val coroutines = "dev.gumil.kaskade:coroutines:${versions.kaskade}"
+        const val rx = "dev.gumil.kaskade:rx:${versions.kaskade}"
+        const val livedata = "dev.gumil.kaskade:livedata:${versions.kaskade}"
     }
 
     const val glide = "com.github.bumptech.glide:glide:4.9.0"

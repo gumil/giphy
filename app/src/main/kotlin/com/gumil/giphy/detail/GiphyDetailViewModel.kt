@@ -6,9 +6,9 @@ import com.gumil.giphy.R
 import com.gumil.giphy.mapToItem
 import com.gumil.giphy.network.repository.Repository
 import com.gumil.giphy.util.applySchedulers
-import io.gumil.kaskade.Kaskade
-import io.gumil.kaskade.livedata.stateDamLiveData
-import io.gumil.kaskade.rx.rx
+import dev.gumil.kaskade.Kaskade
+import dev.gumil.kaskade.livedata.stateDamLiveData
+import dev.gumil.kaskade.rx.rx
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable

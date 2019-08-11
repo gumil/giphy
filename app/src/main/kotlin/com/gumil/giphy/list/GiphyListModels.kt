@@ -1,9 +1,9 @@
 package com.gumil.giphy.list
 
 import com.gumil.giphy.GiphyItem
-import io.gumil.kaskade.Action
-import io.gumil.kaskade.SingleEvent
-import io.gumil.kaskade.State
+import dev.gumil.kaskade.Action
+import dev.gumil.kaskade.SingleEvent
+import dev.gumil.kaskade.State
 
 internal sealed class ListState : State {
 
