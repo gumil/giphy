@@ -7,10 +7,10 @@ object versions {
     const val retrofit = "2.6.0"
     const val okhttp = "4.0.1"
     const val koin = "2.0.1"
-    const val kaskade = "0.3.5"
+    const val kaskade = "0.3.6"
     const val livedata = "2.0.0"
     const val navigation = "2.1.0-beta02"
-    const val rxBinding = "3.0.0-alpha2"
+    const val coroutines = "1.3.0-RC2"
 }
 
 object build {
@@ -45,7 +45,7 @@ object libs {
     object kotlin {
         const val core = "org.jetbrains.kotlin:kotlin-stdlib:${versions.kotlin}"
         const val jdk8 = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${versions.kotlin}"
-        const val coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.0-RC2"
+        const val coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${versions.coroutines}"
     }
 
     object moshi {
@@ -56,16 +56,9 @@ object libs {
     object retrofit {
         const val core = "com.squareup.retrofit2:retrofit:${versions.retrofit}"
         const val converter = "com.squareup.retrofit2:converter-moshi:${versions.retrofit}"
-        const val adapter = "com.squareup.retrofit2:adapter-rxjava2:${versions.retrofit}"
     }
 
     const val okHttpLogger = "com.squareup.okhttp3:logging-interceptor:${versions.okhttp}"
-
-    object rx {
-        const val android = "io.reactivex.rxjava2:rxandroid:2.1.1"
-        const val swipeRefreshLayout = "com.jakewharton.rxbinding3:rxbinding-swiperefreshlayout:${versions.rxBinding}"
-        const val recyclerView = "com.jakewharton.rxbinding3:rxbinding-recyclerview:${versions.rxBinding}"
-    }
 
     object koin {
         const val core = "org.koin:koin-core:${versions.koin}"
@@ -80,7 +73,6 @@ object libs {
     object kaskade {
         const val core = "dev.gumil.kaskade:core:${versions.kaskade}"
         const val coroutines = "dev.gumil.kaskade:coroutines:${versions.kaskade}"
-        const val rx = "dev.gumil.kaskade:rx:${versions.kaskade}"
         const val livedata = "dev.gumil.kaskade:livedata:${versions.kaskade}"
     }
 
@@ -96,6 +88,8 @@ object libs {
 
         const val espresso = "androidx.test.espresso:espresso-core:3.1.0"
         const val androidTestRunner = "androidx.test:runner:1.1.0"
+
+        const val coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-test:${versions.coroutines}"
     }
 
     const val detektLint = "io.gitlab.arturbosch.detekt:detekt-formatting:${versions.detekt}"

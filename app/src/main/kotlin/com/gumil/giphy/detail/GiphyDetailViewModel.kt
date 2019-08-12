@@ -5,23 +5,26 @@ import androidx.lifecycle.ViewModel
 import com.gumil.giphy.R
 import com.gumil.giphy.mapToItem
 import com.gumil.giphy.network.repository.Repository
-import com.gumil.giphy.util.applySchedulers
 import dev.gumil.kaskade.Kaskade
+import dev.gumil.kaskade.coroutines.coroutines
+import dev.gumil.kaskade.flow.Emitter
 import dev.gumil.kaskade.livedata.stateDamLiveData
-import dev.gumil.kaskade.rx.rx
-import io.reactivex.Observable
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
-import io.reactivex.observers.DisposableObserver
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import org.koin.android.viewmodel.dsl.viewModel
 import org.koin.dsl.module
-import timber.log.Timber
 
 internal class GiphyDetailViewModel(
-    private val repository: Repository
+    private val repository: Repository,
+    scope: CoroutineScope? = null
 ) : ViewModel() {
 
-    private val disposables = CompositeDisposable()
+    private val job = scope?.coroutineContext?.get(Job) ?: Job()
+
+    private val uiScope = scope ?: CoroutineScope(Dispatchers.Main + job)
 
     private lateinit var kaskade: Kaskade<DetailAction, DetailState>
 
@@ -36,27 +39,13 @@ internal class GiphyDetailViewModel(
     }
 
     private fun createKaskade(detailState: DetailState) = Kaskade.create<DetailAction, DetailState>(detailState) {
-        rx({
-            object : DisposableObserver<DetailState>() {
-                override fun onComplete() {
-                    Timber.d("flow completed")
-                }
-
-                override fun onNext(state: DetailState) {
-                    Timber.d("currentState = $state")
-                }
-
-                override fun onError(e: Throwable) {
-                    Timber.e(e, "Flow was interrupted")
-                    kaskade.process(DetailAction.OnError(e))
-                }
-            }.also { disposables.add(it) }
-        }) {
-            on<DetailAction.GetRandomGif> {
-                flatMap { repository.getRandomGif() }
-                    .map { DetailState.Screen(it.mapToItem()) }
-                    .ofType(DetailState::class.java)
-                    .applySchedulers()
+        coroutines(uiScope) {
+            onFlow<DetailAction.GetRandomGif> {
+                map {
+                    repository.getRandomGif()
+                }.map {
+                    DetailState.Screen(it.mapToItem())
+                }.flowOn(Dispatchers.IO)
             }
         }
 
@@ -65,14 +54,14 @@ internal class GiphyDetailViewModel(
         }
     }
 
-    fun process(actions: Observable<DetailAction>): Disposable {
+    fun process(actions: Emitter<DetailAction>) {
         return actions.subscribe { kaskade.process(it) }
     }
 
     override fun onCleared() {
         super.onCleared()
         kaskade.unsubscribe()
-        disposables.clear()
+        job.cancel()
     }
 
     companion object {

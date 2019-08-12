@@ -7,9 +7,9 @@ import com.gumil.giphy.ImageItem
 import com.gumil.giphy.R
 import com.gumil.giphy.TestRepository
 import com.gumil.giphy.UserItem
-import com.gumil.giphy.util.just
-import com.gumil.giphy.TrampolineSchedulerRule
+import com.gumil.giphy.TestDispatcherRule
 import com.gumil.giphy.util.Cache
+import dev.gumil.kaskade.flow.MutableEmitter
 import io.mockk.confirmVerified
 import io.mockk.every
 import io.mockk.mockk
@@ -23,7 +23,7 @@ class GiphyListViewModelTest {
     val instantTaskRule = InstantTaskExecutorRule()
 
     @get:Rule
-    val trampolineRule = TrampolineSchedulerRule()
+    val trampolineRule = TestDispatcherRule()
 
     private val list = listOf(
         GiphyItem("amused GIF", null,
@@ -45,7 +45,9 @@ class GiphyListViewModelTest {
         val observer = mockk<Observer<ListState>>(relaxed = true)
         viewModel.state.observeForever(observer)
 
-        viewModel.process(ListAction.Refresh().just())
+        val emitter = MutableEmitter<ListAction>()
+        viewModel.process(emitter)
+        emitter.sendValue(ListAction.Refresh())
 
         verify(exactly = 0) { cache.get<List<GiphyItem>>(any()) }
         verify(exactly = 1) { observer.onChanged(ListState.Screen(emptyList(), ListState.Mode.IDLE_REFRESH)) }
@@ -59,7 +61,9 @@ class GiphyListViewModelTest {
         val observer = mockk<Observer<ListState>>(relaxed = true)
         viewModel.state.observeForever(observer)
 
-        viewModel.process(ListAction.LoadMore(0).just())
+        val emitter = MutableEmitter<ListAction>()
+        viewModel.process(emitter)
+        emitter.sendValue(ListAction.LoadMore(0))
 
         verify(exactly = 1) { observer.onChanged(ListState.Screen(emptyList(), ListState.Mode.IDLE_REFRESH)) }
         verify(exactly = 1) { observer.onChanged(ListState.Screen(emptyList(), ListState.Mode.LOAD_MORE)) }
@@ -73,7 +77,9 @@ class GiphyListViewModelTest {
         val observer = mockk<Observer<ListState>>(relaxed = true)
         viewModel.state.observeForever(observer)
 
-        viewModel.process(ListAction.OnItemClick(list[0]).just())
+        val emitter = MutableEmitter<ListAction>()
+        viewModel.process(emitter)
+        emitter.sendValue(ListAction.OnItemClick(list[0]))
 
         verify(exactly = 1) { observer.onChanged(ListState.Screen(emptyList(), ListState.Mode.IDLE_REFRESH)) }
         verify(exactly = 1) { observer.onChanged(ListState.GoToDetail(list[0])) }
@@ -85,7 +91,9 @@ class GiphyListViewModelTest {
         val observer = mockk<Observer<ListState>>(relaxed = true)
         viewModel.state.observeForever(observer)
 
-        viewModel.process(ListAction.OnError(Exception()).just())
+        val emitter = MutableEmitter<ListAction>()
+        viewModel.process(emitter)
+        emitter.sendValue(ListAction.OnError(Exception()))
 
         verify(exactly = 1) { observer.onChanged(ListState.Screen(emptyList(), ListState.Mode.IDLE_REFRESH)) }
         verify(exactly = 1) { observer.onChanged(ListState.Error(R.string.error_loading)) }

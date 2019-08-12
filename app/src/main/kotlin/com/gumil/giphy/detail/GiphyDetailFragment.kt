@@ -12,9 +12,7 @@ import com.gumil.giphy.R
 import com.gumil.giphy.util.load
 import com.gumil.giphy.util.setHeight
 import com.gumil.giphy.util.showSnackbar
-import com.jakewharton.rxbinding3.view.clicks
-import io.reactivex.Observable
-import io.reactivex.disposables.CompositeDisposable
+import dev.gumil.kaskade.flow.MutableEmitter
 import kotlinx.android.synthetic.main.fragment_detail.*
 import org.koin.android.viewmodel.ext.android.viewModel
 
@@ -22,7 +20,7 @@ internal class GiphyDetailFragment : Fragment() {
 
     private val viewModel: GiphyDetailViewModel by viewModel()
 
-    private lateinit var compositeDisposable: CompositeDisposable
+    private lateinit var actionEmitter: MutableEmitter<DetailAction>
 
     private var currentState: DetailState.Screen? = null
 
@@ -32,15 +30,19 @@ internal class GiphyDetailFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        compositeDisposable = CompositeDisposable()
+        actionEmitter = MutableEmitter()
 
         (savedInstanceState ?: arguments)?.getParcelable<DetailState.Screen>(ARG_STATE)?.let {
             viewModel.restore(it)
         }
 
+        getGifButton.setOnClickListener {
+            actionEmitter.sendValue(DetailAction.GetRandomGif)
+        }
+
         viewModel.state.observe(this, Observer<DetailState> { it?.render() })
 
-        compositeDisposable.add(viewModel.process(actions()))
+        viewModel.process(actionEmitter)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -50,12 +52,9 @@ internal class GiphyDetailFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        compositeDisposable.dispose()
+        actionEmitter.unsubscribe()
         viewModel.state.removeObservers(this)
     }
-
-    private fun actions(): Observable<DetailAction> =
-        getGifButton.clicks().map { DetailAction.GetRandomGif }
 
     private fun DetailState.render(): Unit? = when (this) {
         is DetailState.Screen -> {

@@ -1,11 +1,10 @@
 package com.gumil.giphy.network.repository
 
 import com.gumil.giphy.network.Giphy
-import io.reactivex.Observable
 
 interface Repository {
 
-    fun getTrending(offset: Int = 0, limit: Int = 20): Observable<List<Giphy>>
+    suspend fun getTrending(offset: Int = 0, limit: Int = 20): List<Giphy>
 
-    fun getRandomGif(): Observable<Giphy>
+    suspend fun getRandomGif(): Giphy
 }

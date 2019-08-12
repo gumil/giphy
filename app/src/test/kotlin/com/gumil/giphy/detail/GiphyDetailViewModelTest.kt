@@ -6,8 +6,8 @@ import com.gumil.giphy.GiphyItem
 import com.gumil.giphy.ImageItem
 import com.gumil.giphy.R
 import com.gumil.giphy.TestRepository
-import com.gumil.giphy.TrampolineSchedulerRule
-import com.gumil.giphy.util.just
+import com.gumil.giphy.TestDispatcherRule
+import dev.gumil.kaskade.flow.MutableEmitter
 import io.mockk.confirmVerified
 import io.mockk.mockk
 import io.mockk.verify
@@ -19,7 +19,7 @@ class GiphyDetailViewModelTest {
     val instantTaskRule = InstantTaskExecutorRule()
 
     @get:Rule
-    val trampolineRule = TrampolineSchedulerRule()
+    val trampolineRule = TestDispatcherRule()
 
     private val viewModel = GiphyDetailViewModel(TestRepository())
 
@@ -35,7 +35,9 @@ class GiphyDetailViewModelTest {
         val observer = mockk<Observer<DetailState>>(relaxed = true)
         viewModel.state.observeForever(observer)
 
-        viewModel.process(DetailAction.GetRandomGif.just())
+        val emitter = MutableEmitter<DetailAction>()
+        viewModel.process(emitter)
+        emitter.sendValue(DetailAction.GetRandomGif)
 
         verify(exactly = 2) { observer.onChanged(DetailState.Screen(giphy)) }
 
@@ -48,8 +50,9 @@ class GiphyDetailViewModelTest {
         val observer = mockk<Observer<DetailState>>(relaxed = true)
         viewModel.state.observeForever(observer)
 
-
-        viewModel.process(DetailAction.OnError(Exception()).just())
+        val emitter = MutableEmitter<DetailAction>()
+        viewModel.process(emitter)
+        emitter.sendValue(DetailAction.OnError(Exception()))
 
         verify(exactly = 1) { observer.onChanged(DetailState.Error(1)) }
         verify(exactly = 1) { observer.onChanged(DetailState.Error(R.string.error_loading_single)) }

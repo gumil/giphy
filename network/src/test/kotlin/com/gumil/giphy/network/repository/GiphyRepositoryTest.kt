@@ -8,7 +8,7 @@ import com.gumil.giphy.network.Images
 import com.gumil.giphy.network.Original
 import com.gumil.giphy.network.createMockResponse
 import com.gumil.giphy.network.readFromFile
-import io.reactivex.observers.TestObserver
+import kotlinx.coroutines.runBlocking
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -21,36 +21,20 @@ internal class GiphyRepositoryTest {
     private val repository = GiphyRepository(giphyApi, "")
 
     @Test
-    fun getTrending() {
-        val subscriber = TestObserver<List<Giphy>>()
+    fun getTrending() = runBlocking {
         mockServer.enqueue(createMockResponse(readFromFile("giphies.json")))
-        repository.getTrending(0, 10).subscribe(subscriber)
+        val list = repository.getTrending(0, 10)
 
-        subscriber.awaitTerminalEvent()
-        subscriber.assertNoErrors()
-        subscriber.assertNoTimeout()
-        subscriber.assertValueCount(1)
-        subscriber.assertComplete()
-        assertEquals(3, subscriber.events.size)
-
-        val list = subscriber.values().first()
         assertEquals(10, list.size)
         assertEquals("GIF by pamelaespino", list.first().title)
         assertEquals("happy holi GIF by Greetings", list.last().title)
     }
 
-    @Test
-    fun getRandomGif() {
-        val subscriber = TestObserver<Giphy>()
-        mockServer.enqueue(createMockResponse(readFromFile("random.json")))
-        repository.getRandomGif().subscribe(subscriber)
 
-        subscriber.awaitTerminalEvent()
-        subscriber.assertNoErrors()
-        subscriber.assertNoTimeout()
-        subscriber.assertValueCount(1)
-        subscriber.assertComplete()
-        assertEquals(3, subscriber.events.size)
+    @Test
+    fun getRandomGif() = runBlocking {
+        mockServer.enqueue(createMockResponse(readFromFile("random.json")))
+        val gif = repository.getRandomGif()
 
         assertEquals(
             Giphy(
@@ -68,7 +52,7 @@ internal class GiphyRepositoryTest {
                 ),
                 "amused GIF"
             )
-            , subscriber.values().first()
+            , gif
         )
     }
 }

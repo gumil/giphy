@@ -8,18 +8,15 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.navigation.findNavController
+import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.gumil.giphy.GiphyItem
 import com.gumil.giphy.R
 import com.gumil.giphy.detail.GiphyDetailFragment
 import com.gumil.giphy.util.FooterItem
 import com.gumil.giphy.util.ItemAdapter
-import com.gumil.giphy.util.itemClick
 import com.gumil.giphy.util.showSnackbar
-import com.jakewharton.rxbinding3.recyclerview.scrollEvents
-import com.jakewharton.rxbinding3.swiperefreshlayout.refreshes
-import io.reactivex.Observable
-import io.reactivex.disposables.CompositeDisposable
+import dev.gumil.kaskade.flow.MutableEmitter
 import kotlinx.android.synthetic.main.fragment_list.*
 import org.koin.android.viewmodel.ext.android.viewModel
 
@@ -32,7 +29,7 @@ internal class GiphyListFragment : Fragment() {
         footerItem = FooterItem(R.layout.item_progress)
     }
 
-    private lateinit var compositeDisposable: CompositeDisposable
+    private lateinit var actionEmitter: MutableEmitter<ListAction>
 
     private var pendingRestore: Parcelable? = null
 
@@ -44,15 +41,12 @@ internal class GiphyListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        compositeDisposable = CompositeDisposable()
+        actionEmitter = MutableEmitter()
 
-        recyclerView.layoutManager = StaggeredGridLayoutManager(COLUMNS, StaggeredGridLayoutManager.VERTICAL)
-        recyclerView.adapter = adapter
+        initializeViews()
 
         viewModel.state.observe(this, Observer<ListState> { it?.render() })
-
-        compositeDisposable.add(viewModel.process(actions()))
-
+        viewModel.process(actionEmitter)
         viewModel.restore(savedInstanceState?.getInt(ARG_LIMIT) ?: ListAction.DEFAULT_LIMIT)
     }
 
@@ -71,28 +65,36 @@ internal class GiphyListFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        compositeDisposable.dispose()
+        actionEmitter.unsubscribe()
         viewModel.state.removeObservers(this)
     }
 
-    private fun actions() = Observable.merge<ListAction>(
-        recyclerView.scrollEvents()
-            .filter { pendingRestore == null }
-            .filter { it.dy > 0 }
-            .filter { !isLoading }
-            .filter {
-                val layoutManager = it.view.layoutManager as StaggeredGridLayoutManager
-                val visibleItemCount = recyclerView.childCount
-                val totalItemCount = layoutManager.itemCount
-                val firstVisibleItem = layoutManager.findFirstVisibleItemPositions(null).first()
+    private fun initializeViews() {
+        recyclerView.layoutManager = StaggeredGridLayoutManager(COLUMNS, StaggeredGridLayoutManager.VERTICAL)
+        recyclerView.adapter = adapter
+        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                if (pendingRestore == null && dy > 0 && !isLoading) {
+                    val layoutManager = recyclerView.layoutManager as StaggeredGridLayoutManager
+                    val visibleItemCount = recyclerView.childCount
+                    val totalItemCount = layoutManager.itemCount
+                    val firstVisibleItem = layoutManager.findFirstVisibleItemPositions(null).first()
 
-                totalItemCount - visibleItemCount <= firstVisibleItem + VISIBLE_THRESHOLD
+                    totalItemCount - visibleItemCount <= firstVisibleItem + VISIBLE_THRESHOLD
+                    actionEmitter.sendValue(ListAction.LoadMore(adapter.list.size))
+                    isLoading = true
+                }
             }
-            .map { ListAction.LoadMore(adapter.list.size) }
-            .doOnNext { isLoading = true },
-        swipeRefreshLayout.refreshes().map { ListAction.Refresh() },
-        giphyViewItem.itemClick().map { ListAction.OnItemClick(it) }
-    )
+        })
+
+        swipeRefreshLayout.setOnRefreshListener {
+            actionEmitter.sendValue(ListAction.Refresh())
+        }
+
+        giphyViewItem.onItemClick = {
+            actionEmitter.sendValue(ListAction.OnItemClick(it))
+        }
+    }
 
     private fun ListState.render(): Unit? = when (this) {
         is ListState.Screen -> {

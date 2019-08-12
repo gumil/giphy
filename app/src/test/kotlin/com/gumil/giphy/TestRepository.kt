@@ -7,11 +7,9 @@ import com.gumil.giphy.network.Images
 import com.gumil.giphy.network.Original
 import com.gumil.giphy.network.User
 import com.gumil.giphy.network.repository.Repository
-import com.gumil.giphy.util.just
-import io.reactivex.Observable
 
 internal class TestRepository : Repository {
-    override fun getTrending(offset: Int, limit: Int): Observable<List<Giphy>> {
+    override suspend fun getTrending(offset: Int, limit: Int): List<Giphy> {
         return listOf(
             Giphy(
                 null,
@@ -43,10 +41,10 @@ internal class TestRepository : Repository {
                 ),
                 "title"
             )
-        ).just()
+        )
     }
 
-    override fun getRandomGif(): Observable<Giphy> {
+    override suspend fun getRandomGif(): Giphy {
         return Giphy(
             null,
             Images(
@@ -61,6 +59,6 @@ internal class TestRepository : Repository {
                 )
             ),
             "amused GIF"
-        ).just()
+        )
     }
 }

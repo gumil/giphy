@@ -7,26 +7,34 @@ import com.gumil.giphy.R
 import com.gumil.giphy.mapToItem
 import com.gumil.giphy.network.repository.Repository
 import com.gumil.giphy.util.Cache
-import com.gumil.giphy.util.applySchedulers
-import com.gumil.giphy.util.just
 import dev.gumil.kaskade.ActionState
 import dev.gumil.kaskade.Kaskade
+import dev.gumil.kaskade.coroutines.coroutines
+import dev.gumil.kaskade.flow.Emitter
 import dev.gumil.kaskade.livedata.stateDamLiveData
-import dev.gumil.kaskade.rx.rx
-import io.reactivex.Observable
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
-import io.reactivex.observers.DisposableObserver
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flatMapConcat
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import org.koin.android.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 import timber.log.Timber
 
 internal class GiphyListViewModel(
     private val repository: Repository,
-    private val cache: Cache
+    private val cache: Cache,
+    scope: CoroutineScope? = null
 ) : ViewModel() {
 
-    private val disposables = CompositeDisposable()
+    private val job = scope?.coroutineContext?.get(Job) ?: Job()
+
+    private val uiScope = scope ?: CoroutineScope(Dispatchers.Main + job)
 
     private val kaskade by lazy { createKaskade() }
 
@@ -43,32 +51,19 @@ internal class GiphyListViewModel(
         initialAction = null
     }
 
-    fun process(actions: Observable<ListAction>): Disposable {
+    fun process(actions: Emitter<ListAction>) {
         return actions.subscribe { kaskade.process(it) }
     }
 
     private fun createKaskade() = Kaskade.create<ListAction, ListState>(ListState.Screen()) {
-        rx({
-            object : DisposableObserver<ListState>() {
-                override fun onComplete() {
-                    Timber.d("flow completed")
-                }
-
-                override fun onNext(state: ListState) {
-                    Timber.d("currentState = $state")
-                }
-
-                override fun onError(e: Throwable) {
-                    Timber.e(e, "Flow was interrupted")
-                    process(ListAction.OnError(e).just())
-                }
-            }.also { disposables.add(it) }
-        }) {
-            on<ListAction.Refresh> {
-                flatMap {
+        coroutines(uiScope) {
+            onFlow<ListAction.Refresh> {
+                flatMapConcat {
                     if (it.action.limit > ListAction.DEFAULT_LIMIT) {
                         cache.get<List<GiphyItem>>(KEY_GIPHIES)?.let { giphies ->
-                            return@flatMap ListState.Screen(giphies, ListState.Mode.IDLE_REFRESH).just()
+                            return@flatMapConcat flow {
+                                emit(ListState.Screen(giphies, ListState.Mode.IDLE_REFRESH))
+                            }
                         }
                     }
 
@@ -78,8 +73,8 @@ internal class GiphyListViewModel(
                 }
             }
 
-            on<ListAction.LoadMore> {
-                flatMap {
+            onFlow<ListAction.LoadMore> {
+                flatMapConcat {
                     loadTrending(ListState.Mode.LOAD_MORE, it.action.offset) { state, list ->
                         ListState.Screen(
                             state.giphies.toMutableList().apply { addAll(list) },
@@ -101,32 +96,32 @@ internal class GiphyListViewModel(
         }
     }
 
-    private fun <A : ListAction> Observable<ActionState<A, ListState>>.loadTrending(
+    private suspend fun <A : ListAction> Flow<ActionState<A, ListState>>.loadTrending(
         mode: ListState.Mode,
         offset: Int = 0,
         limit: Int = 10,
         listStateFunction: (ListState.Screen, List<GiphyItem>) -> ListState.Screen
-    ): Observable<ListState> = this
+    ): Flow<ListState> { return this
         .map { it.currentState as ListState.Screen }
-        .flatMap { state ->
-            repository.getTrending(offset, limit)
-                .map { giphies ->
-                    val items = giphies.map { it.mapToItem() }
-                    listStateFunction(state, items)
-                }
-                .startWith(state.copy(loadingMode = mode))
+        .flatMapConcat { state ->
+            flow {
+                val items = repository.getTrending(offset, limit).map { it.mapToItem() }
+                emit(listStateFunction(state, items))
+            }.onStart {
+                state.copy(loadingMode = mode)
+            }
         }
-        .ofType(ListState::class.java)
-        .onErrorReturn {
+        .catch<ListState> {
             Timber.e(it, "Error loading gifs")
-            ListState.Error(R.string.error_loading)
+            emit(ListState.Error(R.string.error_loading))
         }
-        .applySchedulers()
+        .flowOn(Dispatchers.IO)
+    }
 
     override fun onCleared() {
         super.onCleared()
         kaskade.unsubscribe()
-        disposables.clear()
+        job.cancel()
     }
 
     companion object {

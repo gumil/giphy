@@ -36,6 +36,9 @@ android {
             proguardFiles(getDefaultProguardFile("proguard-android.txt"), file("proguard-rules.pro"))
         }
     }
+    packagingOptions {
+        pickFirst("META-INF/kotlinx-coroutines-core.kotlin_module")
+    }
 }
 
 androidExtensions {
@@ -46,7 +49,7 @@ dependencies {
     implementation(project(":network"))
 
     implementation(libs.kaskade.core)
-    implementation(libs.kaskade.rx)
+    implementation(libs.kaskade.coroutines)
     implementation(libs.kaskade.livedata)
 
     implementation(libs.koin.android)
@@ -57,9 +60,6 @@ dependencies {
 
     implementation(libs.glide)
 
-    implementation(libs.rx.swipeRefreshLayout)
-    implementation(libs.rx.recyclerView)
-
     implementation(libs.android.appcompat)
     implementation(libs.android.recyclerView)
     implementation(libs.android.navigation.fragment)
@@ -69,6 +69,7 @@ dependencies {
     testImplementation(libs.test.junit)
     testImplementation(libs.test.mockK)
     testImplementation(libs.test.livedata)
+    testImplementation(libs.test.coroutines)
     androidTestImplementation(libs.test.androidTestRunner)
     androidTestImplementation(libs.test.espresso)
 

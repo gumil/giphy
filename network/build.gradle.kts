@@ -6,7 +6,7 @@ plugins {
 apply { from(rootProject.file("buildSrc/kotlin-sources.gradle")) }
 
 dependencies {
-    api(libs.rx.android)
+    api(libs.kotlin.coroutines)
     api(libs.kotlin.jdk8)
 
     implementation(libs.koin.core)
@@ -16,7 +16,6 @@ dependencies {
 
     implementation(libs.retrofit.core)
     implementation(libs.retrofit.converter)
-    implementation(libs.retrofit.adapter)
     implementation(libs.okHttpLogger)
 
     testImplementation(libs.test.junit)
