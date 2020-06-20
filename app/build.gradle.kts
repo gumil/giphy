@@ -39,10 +39,9 @@ android {
     packagingOptions {
         pickFirst("META-INF/kotlinx-coroutines-core.kotlin_module")
     }
-}
-
-androidExtensions {
-    isExperimental = true
+    buildFeatures {
+        viewBinding = true
+    }
 }
 
 dependencies {

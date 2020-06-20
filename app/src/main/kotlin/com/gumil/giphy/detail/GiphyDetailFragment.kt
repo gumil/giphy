@@ -10,10 +10,10 @@ import androidx.lifecycle.Observer
 import coil.api.load
 import com.gumil.giphy.GiphyItem
 import com.gumil.giphy.R
+import com.gumil.giphy.databinding.FragmentDetailBinding
 import com.gumil.giphy.util.setHeight
 import com.gumil.giphy.util.showSnackbar
 import dev.gumil.kaskade.flow.MutableEmitter
-import kotlinx.android.synthetic.main.fragment_detail.*
 import org.koin.android.viewmodel.ext.android.viewModel
 
 internal class GiphyDetailFragment : Fragment() {
@@ -24,8 +24,17 @@ internal class GiphyDetailFragment : Fragment() {
 
     private var currentState: DetailState.Screen? = null
 
+    private lateinit var binding: FragmentDetailBinding
+
+    private val getGifButton by lazy { binding.getGifButton }
+    private val originalImage by lazy { binding.originalImage }
+    private val userImage by lazy { binding.userImage }
+    private val userContainer by lazy { binding.userContainer }
+    private val username by lazy { binding.username }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_detail, container, false)
+        binding = FragmentDetailBinding.inflate(inflater)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

@@ -12,12 +12,12 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.gumil.giphy.GiphyItem
 import com.gumil.giphy.R
+import com.gumil.giphy.databinding.FragmentListBinding
 import com.gumil.giphy.detail.GiphyDetailFragment
 import com.gumil.giphy.util.FooterItem
 import com.gumil.giphy.util.ItemAdapter
 import com.gumil.giphy.util.showSnackbar
 import dev.gumil.kaskade.flow.MutableEmitter
-import kotlinx.android.synthetic.main.fragment_list.*
 import org.koin.android.viewmodel.ext.android.viewModel
 
 internal class GiphyListFragment : Fragment() {
@@ -35,8 +35,14 @@ internal class GiphyListFragment : Fragment() {
 
     private var isLoading = true
 
+    private lateinit var binding: FragmentListBinding
+
+    private val swipeRefreshLayout by lazy { binding.swipeRefreshLayout }
+    private val recyclerView by lazy { binding.recyclerView }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_list, container, false)
+        binding = FragmentListBinding.inflate(inflater)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
