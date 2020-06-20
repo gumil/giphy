@@ -28,12 +28,6 @@ internal class GiphyDetailFragment : Fragment() {
 
     private lateinit var binding: FragmentDetailBinding
 
-    private val getGifButton by lazy { binding.getGifButton }
-    private val originalImage by lazy { binding.originalImage }
-    private val userImage by lazy { binding.userImage }
-    private val userContainer by lazy { binding.userContainer }
-    private val username by lazy { binding.username }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentDetailBinding.inflate(inflater)
         return binding.root
@@ -47,7 +41,7 @@ internal class GiphyDetailFragment : Fragment() {
             viewModel.restore(it)
         }
 
-        getGifButton.setOnClickListener {
+        binding.getGifButton.setOnClickListener {
             actionEmitter.sendValue(DetailAction.GetRandomGif)
         }
 
@@ -72,28 +66,28 @@ internal class GiphyDetailFragment : Fragment() {
             currentState = this
             activity?.title = giphy.title
 
-            originalImage.post {
-                val width = originalImage.width
+            binding.originalImage.post {
+                val width = binding.originalImage.width
                 val height = width * giphy.image.height / giphy.image.width
 
-                originalImage.setHeight(height)
-                originalImage.load(giphy.image.original) {
+                binding.originalImage.setHeight(height)
+                binding.originalImage.load(giphy.image.original) {
                     placeholder(R.drawable.placeholder)
                     crossfade(true)
                 }
             }
 
             val user = giphy.user
-            userImage.scaleType = ImageView.ScaleType.CENTER_CROP
-            userImage.load(user?.avatarUrl) {
+            binding.userImage.scaleType = ImageView.ScaleType.CENTER_CROP
+            binding.userImage.load(user?.avatarUrl) {
                 placeholder(R.drawable.placeholder)
                 crossfade(true)
             }
 
-            userContainer.setVisible(user != null)
-            username.setVisible(user?.displayName != null &&
+            binding.userContainer.setVisible(user != null)
+            binding.username.setVisible(user?.displayName != null &&
                 user.displayName.trim().isBlank().not())
-            username.text = user?.displayName
+            binding.username.text = user?.displayName
         }
         is DetailState.Error -> showSnackbar(message)
     }

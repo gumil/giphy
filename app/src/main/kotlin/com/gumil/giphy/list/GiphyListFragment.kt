@@ -45,9 +45,6 @@ internal class GiphyListFragment : Fragment() {
 
     private lateinit var binding: FragmentListBinding
 
-    private val swipeRefreshLayout by lazy { binding.swipeRefreshLayout }
-    private val recyclerView by lazy { binding.recyclerView }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentListBinding.inflate(inflater)
         return binding.root
@@ -73,7 +70,7 @@ internal class GiphyListFragment : Fragment() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putParcelable(ARG_RECYCLER_LAYOUT, recyclerView.layoutManager?.onSaveInstanceState())
+        outState.putParcelable(ARG_RECYCLER_LAYOUT, binding.recyclerView.layoutManager?.onSaveInstanceState())
         outState.putInt(ARG_LIMIT, adapter.itemCount)
     }
 
@@ -84,9 +81,9 @@ internal class GiphyListFragment : Fragment() {
     }
 
     private fun initializeViews() {
-        recyclerView.layoutManager = StaggeredGridLayoutManager(COLUMNS, StaggeredGridLayoutManager.VERTICAL)
-        recyclerView.adapter = adapter
-        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+        binding.recyclerView.layoutManager = StaggeredGridLayoutManager(COLUMNS, StaggeredGridLayoutManager.VERTICAL)
+        binding.recyclerView.adapter = adapter
+        binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 if (pendingRestore == null && dy > 0 && !isLoading) {
                     val layoutManager = recyclerView.layoutManager as StaggeredGridLayoutManager
@@ -101,7 +98,7 @@ internal class GiphyListFragment : Fragment() {
             }
         })
 
-        swipeRefreshLayout.setOnRefreshListener {
+        binding.swipeRefreshLayout.setOnRefreshListener {
             actionEmitter.sendValue(ListAction.Refresh())
         }
 
@@ -113,7 +110,7 @@ internal class GiphyListFragment : Fragment() {
     private fun ListState.render(): Unit? = when (this) {
         is ListState.Screen -> {
             when(loadingMode) {
-                ListState.Mode.REFRESH -> { swipeRefreshLayout.isRefreshing = true }
+                ListState.Mode.REFRESH -> { binding.swipeRefreshLayout.isRefreshing = true }
                 ListState.Mode.LOAD_MORE -> adapter.showFooter()
                 ListState.Mode.IDLE_LOAD_MORE -> {
                     adapter.addItems(giphies)
@@ -122,7 +119,7 @@ internal class GiphyListFragment : Fragment() {
                     restoreRecyclerView(giphies)
                 }
                 ListState.Mode.IDLE_REFRESH -> {
-                    swipeRefreshLayout.isRefreshing = false
+                    binding.swipeRefreshLayout.isRefreshing = false
                     adapter.list = giphies
                     isLoading = false
 
@@ -131,7 +128,7 @@ internal class GiphyListFragment : Fragment() {
             }
         }
         is ListState.Error -> {
-            swipeRefreshLayout.isRefreshing = false
+            binding.swipeRefreshLayout.isRefreshing = false
             showSnackbar(errorMessage)
         }
         is ListState.GoToDetail -> view
@@ -139,16 +136,16 @@ internal class GiphyListFragment : Fragment() {
             ?.navigate(R.id.action_giphyListFragment_to_giphyDetailFragment,
                 GiphyDetailFragment.getBundle(giphy))
             ?.also {
-                pendingRestore = recyclerView.layoutManager?.onSaveInstanceState()
+                pendingRestore = binding.recyclerView.layoutManager?.onSaveInstanceState()
             }
     }
 
     private fun restoreRecyclerView(giphies: List<GiphyItem>) {
         if (adapter.itemCount > 0 && giphies.isNotEmpty()) {
             pendingRestore?.let {
-                recyclerView.post {
-                    recyclerView.layoutManager?.onRestoreInstanceState(it)
-                    (recyclerView.layoutManager as StaggeredGridLayoutManager).invalidateSpanAssignments()
+                binding.recyclerView.post {
+                    binding.recyclerView.layoutManager?.onRestoreInstanceState(it)
+                    (binding.recyclerView.layoutManager as StaggeredGridLayoutManager).invalidateSpanAssignments()
                     pendingRestore = null
                 }
             }
