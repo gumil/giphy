@@ -4,12 +4,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import coil.api.load
 import com.gumil.giphy.GiphyItem
 import com.gumil.giphy.R
-import com.gumil.giphy.util.load
 import com.gumil.giphy.util.setHeight
 import com.gumil.giphy.util.showSnackbar
 import dev.gumil.kaskade.flow.MutableEmitter
@@ -66,15 +66,18 @@ internal class GiphyDetailFragment : Fragment() {
                 val height = width * giphy.image.height / giphy.image.width
 
                 originalImage.setHeight(height)
-                originalImage.load(giphy.image.original, {
-                    placeholder(R.drawable.placeholder).override(width, height)
-                }, DrawableTransitionOptions.withCrossFade())
+                originalImage.load(giphy.image.original) {
+                    placeholder(R.drawable.placeholder)
+                    crossfade(true)
+                }
             }
 
             val user = giphy.user
-            userImage.load(user?.avatarUrl, {
-                centerCrop().placeholder(R.drawable.placeholder)
-            }, DrawableTransitionOptions.withCrossFade())
+            userImage.scaleType = ImageView.ScaleType.CENTER_CROP
+            userImage.load(user?.avatarUrl) {
+                placeholder(R.drawable.placeholder)
+                crossfade(true)
+            }
 
             userContainer.setVisible(user != null)
             username.setVisible(user?.displayName != null &&

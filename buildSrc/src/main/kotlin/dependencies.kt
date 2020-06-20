@@ -77,7 +77,8 @@ object libs {
         const val livedata = "dev.gumil.kaskade:livedata:${versions.kaskade}"
     }
 
-    const val glide = "com.github.bumptech.glide:glide:4.11.0"
+    const val coil = "io.coil-kt:coil:0.11.0"
+    const val coilGif = "io.coil-kt:coil-gif:0.11.0"
 
     object test {
         const val junit = "junit:junit:4.12"

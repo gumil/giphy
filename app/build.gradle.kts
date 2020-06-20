@@ -58,7 +58,8 @@ dependencies {
     implementation(libs.timber)
     debugImplementation(libs.leakCanary)
 
-    implementation(libs.glide)
+    implementation(libs.coil)
+    implementation(libs.coilGif)
 
     implementation(libs.android.appcompat)
     implementation(libs.android.recyclerView)
