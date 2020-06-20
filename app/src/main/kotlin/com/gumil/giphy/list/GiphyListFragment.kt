@@ -15,20 +15,14 @@ import com.gumil.giphy.GiphyItem
 import com.gumil.giphy.R
 import com.gumil.giphy.databinding.FragmentListBinding
 import com.gumil.giphy.detail.GiphyDetailFragment
-import com.gumil.giphy.network.repository.Repository
-import com.gumil.giphy.util.Cache
 import com.gumil.giphy.util.FooterItem
 import com.gumil.giphy.util.ItemAdapter
 import com.gumil.giphy.util.showSnackbar
 import dagger.hilt.android.AndroidEntryPoint
 import dev.gumil.kaskade.flow.MutableEmitter
-import javax.inject.Inject
 
 @AndroidEntryPoint
 internal class GiphyListFragment : Fragment() {
-
-    @Inject lateinit var repository: Repository
-    @Inject lateinit var cache: Cache
 
     private val viewModel by viewModels<GiphyListViewModel>()
 
