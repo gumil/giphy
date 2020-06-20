@@ -9,8 +9,6 @@ dependencies {
     api(libs.kotlin.coroutines)
     api(libs.kotlin.jdk8)
 
-    implementation(libs.koin.core)
-
     implementation(libs.moshi.core)
     kapt(libs.moshi.codeGen)
 

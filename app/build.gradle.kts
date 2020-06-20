@@ -5,7 +5,9 @@ plugins {
     id("com.android.application")
     kotlin("android")
     kotlin("android.extensions")
+    kotlin("kapt")
     id(projectPlugins.detekt).version(versions.detekt)
+    id("dagger.hilt.android.plugin")
 }
 
 apply { from(rootProject.file("buildSrc/kotlin-sources.gradle")) }
@@ -51,8 +53,12 @@ dependencies {
     implementation(libs.kaskade.coroutines)
     implementation(libs.kaskade.livedata)
 
-    implementation(libs.koin.android)
-    implementation(libs.koin.viewModel)
+    implementation(libs.dagger.core)
+    implementation(libs.dagger.hilt.core)
+    implementation(libs.dagger.hilt.viewmodel)
+    kapt(libs.dagger.compiler)
+    kapt(libs.dagger.hilt.compiler)
+    kapt(libs.dagger.hilt.androidCompiler)
 
     implementation(libs.timber)
     debugImplementation(libs.leakCanary)
@@ -80,4 +86,8 @@ dependencies {
 detekt {
     version = versions.detekt
     input = files("src/main/java", "src/androidx/java", "src/support/java")
+}
+
+kapt {
+    correctErrorTypes = true
 }

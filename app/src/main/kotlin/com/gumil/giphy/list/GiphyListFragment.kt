@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
@@ -14,15 +15,22 @@ import com.gumil.giphy.GiphyItem
 import com.gumil.giphy.R
 import com.gumil.giphy.databinding.FragmentListBinding
 import com.gumil.giphy.detail.GiphyDetailFragment
+import com.gumil.giphy.network.repository.Repository
+import com.gumil.giphy.util.Cache
 import com.gumil.giphy.util.FooterItem
 import com.gumil.giphy.util.ItemAdapter
 import com.gumil.giphy.util.showSnackbar
+import dagger.hilt.android.AndroidEntryPoint
 import dev.gumil.kaskade.flow.MutableEmitter
-import org.koin.android.viewmodel.ext.android.viewModel
+import javax.inject.Inject
 
+@AndroidEntryPoint
 internal class GiphyListFragment : Fragment() {
 
-    private val viewModel: GiphyListViewModel by viewModel()
+    @Inject lateinit var repository: Repository
+    @Inject lateinit var cache: Cache
+
+    private val viewModel by viewModels<GiphyListViewModel>()
 
     private val giphyViewItem = GiphyViewItem()
     private val adapter = ItemAdapter(giphyViewItem).apply {

@@ -1,5 +1,6 @@
 package com.gumil.giphy.detail
 
+import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import com.gumil.giphy.R
@@ -14,17 +15,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import org.koin.android.viewmodel.dsl.viewModel
-import org.koin.dsl.module
 
-internal class GiphyDetailViewModel(
-    private val repository: Repository,
-    scope: CoroutineScope? = null
+internal class GiphyDetailViewModel @ViewModelInject constructor(
+    private val repository: Repository
 ) : ViewModel() {
 
-    private val job = scope?.coroutineContext?.get(Job) ?: Job()
+    private val job = Job()
 
-    private val uiScope = scope ?: CoroutineScope(Dispatchers.Main + job)
+    private val uiScope = CoroutineScope(Dispatchers.Main + job)
 
     private lateinit var kaskade: Kaskade<DetailAction, DetailState>
 
@@ -62,11 +60,5 @@ internal class GiphyDetailViewModel(
         super.onCleared()
         kaskade.unsubscribe()
         job.cancel()
-    }
-
-    companion object {
-        fun creatModule() = module {
-            viewModel { GiphyDetailViewModel(get()) }
-        }
     }
 }

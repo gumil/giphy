@@ -6,7 +6,7 @@ object versions {
     const val moshi = "1.9.3"
     const val retrofit = "2.9.0"
     const val okhttp = "4.7.2"
-    const val koin = "2.1.6"
+    const val dagger = "2.28"
     const val kaskade = "0.3.8"
     const val livedata = "2.0.0"
     const val navigation = "2.2.2"
@@ -16,6 +16,7 @@ object versions {
 object build {
     const val androidGradle = "com.android.tools.build:gradle:4.0.0"
     const val kotlinGradle = "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}"
+    const val hilt = "com.google.dagger:hilt-android-gradle-plugin:${versions.dagger}-alpha"
 
     object android {
         const val buildToolsVersion = "30.0.0"
@@ -61,11 +62,16 @@ object libs {
 
     const val okHttpLogger = "com.squareup.okhttp3:logging-interceptor:${versions.okhttp}"
 
-    object koin {
-        const val core = "org.koin:koin-core:${versions.koin}"
-        const val android = "org.koin:koin-android:${versions.koin}"
-        const val scope = "org.koin:koin-android-scope:${versions.koin}"
-        const val viewModel = "org.koin:koin-android-viewmodel:${versions.koin}"
+    object dagger {
+        const val core = "com.google.dagger:dagger:${versions.dagger}"
+        const val compiler = "com.google.dagger:dagger-compiler:${versions.dagger}"
+
+        object hilt {
+            const val core = "com.google.dagger:hilt-android:${versions.dagger}-alpha"
+            const val compiler = "com.google.dagger:hilt-android-compiler:${versions.dagger}-alpha"
+            const val viewmodel = "androidx.hilt:hilt-lifecycle-viewmodel:1.0.0-alpha01"
+            const val androidCompiler = "androidx.hilt:hilt-compiler:1.0.0-alpha01"
+        }
     }
 
     const val timber = "com.jakewharton.timber:timber:4.7.1"

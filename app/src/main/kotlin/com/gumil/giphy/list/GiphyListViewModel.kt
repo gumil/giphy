@@ -1,5 +1,6 @@
 package com.gumil.giphy.list
 
+import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import com.gumil.giphy.GiphyItem
@@ -22,19 +23,16 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
-import org.koin.android.viewmodel.dsl.viewModel
-import org.koin.dsl.module
 import timber.log.Timber
 
-internal class GiphyListViewModel(
+internal class GiphyListViewModel @ViewModelInject constructor(
     private val repository: Repository,
-    private val cache: Cache,
-    scope: CoroutineScope? = null
+    private val cache: Cache
 ) : ViewModel() {
 
-    private val job = scope?.coroutineContext?.get(Job) ?: Job()
+    private val job = Job()
 
-    private val uiScope = scope ?: CoroutineScope(Dispatchers.Main + job)
+    private val uiScope = CoroutineScope(Dispatchers.Main + job)
 
     private val kaskade by lazy { createKaskade() }
 
@@ -126,9 +124,5 @@ internal class GiphyListViewModel(
 
     companion object {
         private const val KEY_GIPHIES = "key giphies"
-
-        fun createModule() = module {
-            viewModel { GiphyListViewModel(get(), get()) }
-        }
     }
 }

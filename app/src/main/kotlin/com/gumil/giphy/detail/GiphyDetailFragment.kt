@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import coil.api.load
 import com.gumil.giphy.GiphyItem
@@ -13,12 +14,13 @@ import com.gumil.giphy.R
 import com.gumil.giphy.databinding.FragmentDetailBinding
 import com.gumil.giphy.util.setHeight
 import com.gumil.giphy.util.showSnackbar
+import dagger.hilt.android.AndroidEntryPoint
 import dev.gumil.kaskade.flow.MutableEmitter
-import org.koin.android.viewmodel.ext.android.viewModel
 
+@AndroidEntryPoint
 internal class GiphyDetailFragment : Fragment() {
 
-    private val viewModel: GiphyDetailViewModel by viewModel()
+    private val viewModel: GiphyDetailViewModel by viewModels()
 
     private lateinit var actionEmitter: MutableEmitter<DetailAction>
 
