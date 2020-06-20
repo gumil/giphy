@@ -7,7 +7,6 @@ import com.gumil.giphy.network.NAME_API_KEY
 import com.gumil.giphy.network.createNetworkModule
 import com.gumil.giphy.util.Cache
 import com.gumil.giphy.util.DiskCache
-import com.squareup.leakcanary.LeakCanary
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 import org.koin.core.qualifier.named
@@ -41,12 +40,5 @@ internal class App : Application() {
 
     private fun initializeDebugTools() {
         Timber.plant(Timber.DebugTree())
-
-        if (LeakCanary.isInAnalyzerProcess(this)) {
-            // This process is dedicated to LeakCanary for heap analysis.
-            // You should not init your app in this process.
-            return
-        }
-        LeakCanary.install(this)
     }
 }

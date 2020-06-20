@@ -56,7 +56,7 @@ dependencies {
     implementation(libs.koin.viewModel)
 
     implementation(libs.timber)
-    implementation(libs.leakCanary)
+    debugImplementation(libs.leakCanary)
 
     implementation(libs.glide)
 
