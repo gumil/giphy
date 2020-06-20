@@ -45,7 +45,7 @@ internal class GiphyListFragment : Fragment() {
 
         initializeViews()
 
-        viewModel.state.observe(this, Observer<ListState> { it?.render() })
+        viewModel.state.observe(viewLifecycleOwner, Observer<ListState> { it?.render() })
         viewModel.process(actionEmitter)
         viewModel.restore(savedInstanceState?.getInt(ARG_LIMIT) ?: ListAction.DEFAULT_LIMIT)
     }

@@ -34,6 +34,7 @@ object libs {
         const val appcompat = "androidx.appcompat:appcompat:1.1.0"
         const val ktx = "androidx.core:core-ktx:1.3.0"
         const val recyclerView = "androidx.recyclerview:recyclerview:1.1.0"
+        const val swiperefreshlayout = "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
 
         object navigation {
             const val fragment = "androidx.navigation:navigation-fragment-ktx:${versions.navigation}"

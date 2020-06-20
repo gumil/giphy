@@ -40,7 +40,7 @@ internal class GiphyDetailFragment : Fragment() {
             actionEmitter.sendValue(DetailAction.GetRandomGif)
         }
 
-        viewModel.state.observe(this, Observer<DetailState> { it?.render() })
+        viewModel.state.observe(viewLifecycleOwner, Observer<DetailState> { it?.render() })
 
         viewModel.process(actionEmitter)
     }

@@ -62,6 +62,7 @@ dependencies {
 
     implementation(libs.android.appcompat)
     implementation(libs.android.recyclerView)
+    implementation(libs.android.swiperefreshlayout)
     implementation(libs.android.navigation.fragment)
     implementation(libs.android.navigation.ui)
     implementation(libs.android.material)
