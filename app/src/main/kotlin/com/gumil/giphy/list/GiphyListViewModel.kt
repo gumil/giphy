@@ -3,6 +3,7 @@ package com.gumil.giphy.list
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.gumil.giphy.GiphyItem
 import com.gumil.giphy.R
 import com.gumil.giphy.mapToItem
@@ -13,13 +14,12 @@ import dev.gumil.kaskade.Kaskade
 import dev.gumil.kaskade.coroutines.coroutines
 import dev.gumil.kaskade.flow.Emitter
 import dev.gumil.kaskade.livedata.stateDamLiveData
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
@@ -29,10 +29,6 @@ internal class GiphyListViewModel @ViewModelInject constructor(
     private val repository: Repository,
     private val cache: Cache
 ) : ViewModel() {
-
-    private val job = Job()
-
-    private val uiScope = CoroutineScope(Dispatchers.Main + job)
 
     private val kaskade by lazy { createKaskade() }
 
@@ -54,21 +50,19 @@ internal class GiphyListViewModel @ViewModelInject constructor(
     }
 
     private fun createKaskade() = Kaskade.create<ListAction, ListState>(ListState.Screen()) {
-        coroutines(uiScope) {
+        coroutines(viewModelScope) {
             onFlow<ListAction.Refresh> {
                 flatMapConcat {
                     if (it.action.limit > ListAction.DEFAULT_LIMIT) {
                         cache.get<List<GiphyItem>>(KEY_GIPHIES)?.let { giphies ->
-                            return@flatMapConcat flow {
-                                emit(ListState.Screen(giphies, ListState.Mode.IDLE_REFRESH))
-                            }
+                            return@flatMapConcat flowOf(ListState.Screen(giphies, ListState.Mode.IDLE_REFRESH))
                         }
                     }
 
                     loadTrending(ListState.Mode.REFRESH, limit = it.action.limit) { _, list ->
                         ListState.Screen(list, ListState.Mode.IDLE_REFRESH)
                     }
-                }
+                }.flowOn(Dispatchers.IO)
             }
 
             onFlow<ListAction.LoadMore> {
@@ -81,7 +75,7 @@ internal class GiphyListViewModel @ViewModelInject constructor(
                             cache.save(KEY_GIPHIES, screen.giphies)
                         }
                     }
-                }
+                }.flowOn(Dispatchers.IO)
             }
         }
 
@@ -113,13 +107,11 @@ internal class GiphyListViewModel @ViewModelInject constructor(
             Timber.e(it, "Error loading gifs")
             emit(ListState.Error(R.string.error_loading))
         }
-        .flowOn(Dispatchers.IO)
     }
 
     override fun onCleared() {
         super.onCleared()
         kaskade.unsubscribe()
-        job.cancel()
     }
 
     companion object {
