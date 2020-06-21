@@ -19,6 +19,7 @@ internal class GiphyViewItem : ViewItem<GiphyItem> {
         super.bind(view, item)
         (view as? ImageView)?.let { imageView ->
             imageView.post {
+                if (imageView.parent == null) return@post
                 imageView.setHeight(item.image.height)
                 imageView.scaleType = ImageView.ScaleType.CENTER_CROP
 
