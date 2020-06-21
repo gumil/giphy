@@ -26,10 +26,11 @@ internal class GiphyDetailFragment : Fragment() {
 
     private var currentState: DetailState.Screen? = null
 
-    private lateinit var binding: FragmentDetailBinding
+    private var _binding: FragmentDetailBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = FragmentDetailBinding.inflate(inflater)
+        _binding = FragmentDetailBinding.inflate(inflater)
         return binding.root
     }
 
@@ -37,7 +38,7 @@ internal class GiphyDetailFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         actionEmitter = MutableEmitter()
 
-        (savedInstanceState ?: arguments)?.getParcelable<DetailState.Screen>(ARG_STATE)?.let {
+        arguments?.getParcelable<DetailState.Screen>(ARG_STATE)?.let {
             viewModel.restore(it)
         }
 
@@ -50,15 +51,11 @@ internal class GiphyDetailFragment : Fragment() {
         viewModel.process(actionEmitter)
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        currentState?.let { outState.putParcelable(ARG_STATE, it) }
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
         actionEmitter.unsubscribe()
         viewModel.state.removeObservers(this)
+        _binding = null
     }
 
     private fun DetailState.render(): Unit? = when (this) {

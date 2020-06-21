@@ -2,6 +2,7 @@ package com.gumil.giphy.detail
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
+import androidx.lifecycle.SavedStateHandle
 import com.gumil.giphy.GiphyItem
 import com.gumil.giphy.ImageItem
 import com.gumil.giphy.R
@@ -21,7 +22,7 @@ class GiphyDetailViewModelTest {
     @get:Rule
     val trampolineRule = TestDispatcherRule()
 
-    private val viewModel = GiphyDetailViewModel(TestRepository())
+    private val viewModel = GiphyDetailViewModel(TestRepository(), SavedStateHandle())
 
     private val giphy = GiphyItem("amused GIF", null,
         ImageItem("https://media2.giphy.com/media/TaNz4CeKR7O1y/giphy-downsized.gif",

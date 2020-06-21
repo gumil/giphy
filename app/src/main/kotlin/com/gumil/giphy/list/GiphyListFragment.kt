@@ -37,10 +37,11 @@ internal class GiphyListFragment : Fragment() {
 
     private var isLoading = true
 
-    private lateinit var binding: FragmentListBinding
+    private var _binding: FragmentListBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = FragmentListBinding.inflate(inflater)
+        _binding = FragmentListBinding.inflate(inflater)
         return binding.root
     }
 
@@ -52,7 +53,6 @@ internal class GiphyListFragment : Fragment() {
 
         viewModel.state.observe(viewLifecycleOwner, Observer<ListState> { it?.render() })
         viewModel.process(actionEmitter)
-        viewModel.restore(savedInstanceState?.getInt(ARG_LIMIT) ?: ListAction.DEFAULT_LIMIT)
     }
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
@@ -64,14 +64,15 @@ internal class GiphyListFragment : Fragment() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putParcelable(ARG_RECYCLER_LAYOUT, binding.recyclerView.layoutManager?.onSaveInstanceState())
-        outState.putInt(ARG_LIMIT, adapter.itemCount)
+        outState.putParcelable(ARG_RECYCLER_LAYOUT, _binding?.recyclerView?.layoutManager?.onSaveInstanceState())
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         actionEmitter.unsubscribe()
         viewModel.state.removeObservers(this)
+        binding.recyclerView.adapter = null
+        _binding = null
     }
 
     private fun initializeViews() {
@@ -148,7 +149,6 @@ internal class GiphyListFragment : Fragment() {
 
     companion object {
         private const val ARG_RECYCLER_LAYOUT = "arg_recycler_layout"
-        private const val ARG_LIMIT = "arg_limit"
         private const val COLUMNS = 2
         private const val VISIBLE_THRESHOLD = 2
     }

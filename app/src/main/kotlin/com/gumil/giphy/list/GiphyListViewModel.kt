@@ -1,7 +1,9 @@
 package com.gumil.giphy.list
 
+import androidx.hilt.Assisted
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gumil.giphy.GiphyItem
@@ -22,27 +24,25 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
 import timber.log.Timber
 
 internal class GiphyListViewModel @ViewModelInject constructor(
     private val repository: Repository,
-    private val cache: Cache
+    private val cache: Cache,
+    @Assisted private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     private val kaskade by lazy { createKaskade() }
-
-    private var initialAction: ListAction.Refresh? = ListAction.Refresh()
 
     val state: LiveData<ListState> get() = _state
 
     private val _state by lazy { kaskade.stateDamLiveData() }
 
-    fun restore(limit: Int = ListAction.DEFAULT_LIMIT) {
-        initialAction?.let {
-            kaskade.process(it.copy(limit = limit))
-        }
-        initialAction = null
+    init {
+        val limit = savedStateHandle.get<Int>(KEY_LIMIT) ?: ListAction.DEFAULT_LIMIT
+        kaskade.process(ListAction.Refresh(limit = limit))
     }
 
     fun process(actions: Emitter<ListAction>) {
@@ -103,6 +103,10 @@ internal class GiphyListViewModel @ViewModelInject constructor(
                 state.copy(loadingMode = mode)
             }
         }
+        .onCompletion {
+            val currentLimit = savedStateHandle.get<Int>(KEY_LIMIT) ?: 0
+            savedStateHandle.set(KEY_LIMIT, currentLimit + limit)
+        }
         .catch<ListState> {
             Timber.e(it, "Error loading gifs")
             emit(ListState.Error(R.string.error_loading))
@@ -116,5 +120,6 @@ internal class GiphyListViewModel @ViewModelInject constructor(
 
     companion object {
         private const val KEY_GIPHIES = "key giphies"
+        private const val KEY_LIMIT = "key limit"
     }
 }

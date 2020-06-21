@@ -44,6 +44,9 @@ android {
     buildFeatures {
         viewBinding = true
     }
+    testOptions {
+        unitTests.isReturnDefaultValues = true
+    }
 }
 
 dependencies {
@@ -72,6 +75,7 @@ dependencies {
     implementation(libs.android.navigation.fragment)
     implementation(libs.android.navigation.ui)
     implementation(libs.android.material)
+    implementation(libs.android.viewModelSavedState)
 
     testImplementation(libs.test.junit)
     testImplementation(libs.test.mockK)
