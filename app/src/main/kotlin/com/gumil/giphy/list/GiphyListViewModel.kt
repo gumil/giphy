@@ -62,7 +62,7 @@ internal class GiphyListViewModel @ViewModelInject constructor(
                     loadTrending(ListState.Mode.REFRESH, limit = it.action.limit) { _, list ->
                         ListState.Screen(list, ListState.Mode.IDLE_REFRESH)
                     }
-                }.flowOn(Dispatchers.IO)
+                }
             }
 
             onFlow<ListAction.LoadMore> {
@@ -75,7 +75,7 @@ internal class GiphyListViewModel @ViewModelInject constructor(
                             cache.save(KEY_GIPHIES, screen.giphies)
                         }
                     }
-                }.flowOn(Dispatchers.IO)
+                }
             }
         }
 
@@ -100,7 +100,7 @@ internal class GiphyListViewModel @ViewModelInject constructor(
                 val items = repository.getTrending(offset, limit).map { it.mapToItem() }
                 emit(listStateFunction(state, items))
             }.onStart {
-                state.copy(loadingMode = mode)
+                emit(state.copy(loadingMode = mode))
             }
         }
         .onCompletion {
@@ -111,6 +111,7 @@ internal class GiphyListViewModel @ViewModelInject constructor(
             Timber.e(it, "Error loading gifs")
             emit(ListState.Error(R.string.error_loading))
         }
+        .flowOn(Dispatchers.IO)
     }
 
     override fun onCleared() {
