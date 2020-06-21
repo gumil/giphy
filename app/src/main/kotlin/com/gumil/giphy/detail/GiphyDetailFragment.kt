@@ -15,19 +15,25 @@ import com.gumil.giphy.databinding.FragmentDetailBinding
 import com.gumil.giphy.util.setHeight
 import com.gumil.giphy.util.showSnackbar
 import dagger.hilt.android.AndroidEntryPoint
-import dev.gumil.kaskade.flow.MutableEmitter
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import reactivecircus.flowbinding.android.view.clicks
 
 @AndroidEntryPoint
 internal class GiphyDetailFragment : Fragment() {
 
     private val viewModel: GiphyDetailViewModel by viewModels()
 
-    private lateinit var actionEmitter: MutableEmitter<DetailAction>
-
     private var currentState: DetailState.Screen? = null
 
     private var _binding: FragmentDetailBinding? = null
     private val binding get() = _binding!!
+
+    private lateinit var job: Job
+    private val uiScope: CoroutineScope get() = CoroutineScope(Dispatchers.Main + job)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         _binding = FragmentDetailBinding.inflate(inflater)
@@ -36,24 +42,26 @@ internal class GiphyDetailFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        actionEmitter = MutableEmitter()
+        job = Job()
 
         arguments?.getParcelable<DetailState.Screen>(ARG_STATE)?.let {
             viewModel.restore(it)
         }
 
-        binding.getGifButton.setOnClickListener {
-            actionEmitter.sendValue(DetailAction.GetRandomGif)
-        }
-
         viewModel.state.observe(viewLifecycleOwner, Observer<DetailState> { it?.render() })
 
-        viewModel.process(actionEmitter)
+        viewModel.process(
+            binding.getGifButton
+                .clicks()
+                .map {
+                    DetailAction.GetRandomGif
+                }
+        ).launchIn(uiScope)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        actionEmitter.unsubscribe()
+        job.cancel()
         viewModel.state.removeObservers(this)
         _binding = null
     }

@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import timber.log.Timber
 
@@ -45,8 +46,8 @@ internal class GiphyListViewModel @ViewModelInject constructor(
         kaskade.process(ListAction.Refresh(limit = limit))
     }
 
-    fun process(actions: Emitter<ListAction>) {
-        return actions.subscribe { kaskade.process(it) }
+    fun process(actions: Flow<ListAction>): Flow<ListAction> {
+        return actions.onEach { kaskade.process(it) }
     }
 
     private fun createKaskade() = Kaskade.create<ListAction, ListState>(ListState.Screen()) {

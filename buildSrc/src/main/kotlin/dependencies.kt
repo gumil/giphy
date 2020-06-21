@@ -8,9 +8,11 @@ object versions {
     const val okhttp = "4.7.2"
     const val dagger = "2.28"
     const val kaskade = "0.3.8"
-    const val livedata = "2.0.0"
+    const val lifecycle = "2.2.0"
+    const val livedataTesting = "2.0.0"
     const val navigation = "2.2.2"
     const val coroutines = "1.3.7"
+    const val flowbinding = "0.12.0"
 }
 
 object build {
@@ -36,7 +38,8 @@ object libs {
         const val ktx = "androidx.core:core-ktx:1.3.0"
         const val recyclerView = "androidx.recyclerview:recyclerview:1.1.0"
         const val swiperefreshlayout = "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
-        const val viewModelSavedState = "androidx.lifecycle:lifecycle-viewmodel-savedstate:2.2.0"
+        const val viewModelSavedState = "androidx.lifecycle:lifecycle-viewmodel-savedstate:${versions.lifecycle}"
+        const val lifecycle = "androidx.lifecycle:lifecycle-runtime-ktx:${versions.lifecycle}"
 
         object navigation {
             const val fragment = "androidx.navigation:navigation-fragment-ktx:${versions.navigation}"
@@ -87,13 +90,20 @@ object libs {
     const val coil = "io.coil-kt:coil:0.11.0"
     const val coilGif = "io.coil-kt:coil-gif:0.11.0"
 
+    object flowBinding {
+        const val core = "io.github.reactivecircus.flowbinding:flowbinding-android:${versions.flowbinding}"
+        const val common = "io.github.reactivecircus.flowbinding:flowbinding-common:${versions.flowbinding}"
+        const val recyclerView = "io.github.reactivecircus.flowbinding:flowbinding-recyclerview:${versions.flowbinding}"
+        const val swipeRefresh = "io.github.reactivecircus.flowbinding:flowbinding-swiperefreshlayout:${versions.flowbinding}"
+    }
+
     object test {
         const val junit = "junit:junit:4.12"
 
         const val mockWebServer = "com.squareup.okhttp3:mockwebserver:${versions.okhttp}"
         const val mockK = "io.mockk:mockk:1.9.3"
 
-        const val livedata = "androidx.arch.core:core-testing:${versions.livedata}"
+        const val livedata = "androidx.arch.core:core-testing:${versions.livedataTesting}"
 
         const val espresso = "androidx.test.espresso:espresso-core:3.2.0"
         const val androidTestRunner = "androidx.test:runner:1.2.0"

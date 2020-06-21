@@ -11,9 +11,9 @@ import com.gumil.giphy.mapToItem
 import com.gumil.giphy.network.repository.Repository
 import dev.gumil.kaskade.Kaskade
 import dev.gumil.kaskade.coroutines.coroutines
-import dev.gumil.kaskade.flow.Emitter
 import dev.gumil.kaskade.livedata.stateDamLiveData
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -60,8 +60,8 @@ internal class GiphyDetailViewModel @ViewModelInject constructor(
         }
     }
 
-    fun process(actions: Emitter<DetailAction>) {
-        return actions.subscribe { kaskade.process(it) }
+    fun process(actions: Flow<DetailAction>): Flow<DetailAction> {
+        return actions.onEach { kaskade.process(it) }
     }
 
     override fun onCleared() {

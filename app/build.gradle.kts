@@ -1,5 +1,6 @@
 import java.io.FileInputStream
 import java.util.Properties
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("com.android.application")
@@ -76,6 +77,12 @@ dependencies {
     implementation(libs.android.navigation.ui)
     implementation(libs.android.material)
     implementation(libs.android.viewModelSavedState)
+    implementation(libs.android.lifecycle)
+
+    implementation(libs.flowBinding.core)
+    implementation(libs.flowBinding.common)
+    implementation(libs.flowBinding.recyclerView)
+    implementation(libs.flowBinding.swipeRefresh)
 
     testImplementation(libs.test.junit)
     testImplementation(libs.test.mockK)
@@ -94,4 +101,15 @@ detekt {
 
 kapt {
     correctErrorTypes = true
+}
+
+tasks.withType<KotlinCompile>().configureEach {
+    kotlinOptions {
+        freeCompilerArgs = listOf(
+            "-Xopt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
+            "-Xopt-in=kotlinx.coroutines.FlowPreview",
+            "-XXLanguage:+InlineClasses"
+        )
+        jvmTarget = "1.8"
+    }
 }
