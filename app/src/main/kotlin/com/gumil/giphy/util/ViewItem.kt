@@ -6,7 +6,6 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.conflate
 import reactivecircus.flowbinding.common.checkMainThread
 import reactivecircus.flowbinding.common.safeOffer
-import timber.log.Timber
 
 internal interface ViewItem<M> {
 
@@ -37,8 +36,5 @@ internal fun <M> ViewItem<M>.itemClick() = callbackFlow<M> {
     onItemClick = {
         safeOffer(it)
     }
-    awaitClose {
-        Timber.tag("tantrums").d("nasara aman")
-        onItemClick = null
-    }
+    awaitClose { onItemClick = null }
 }.conflate()
