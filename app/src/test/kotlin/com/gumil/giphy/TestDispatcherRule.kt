@@ -11,11 +11,12 @@ import org.junit.runners.model.Statement
 class TestDispatcherRule : TestRule {
     private val testDispatcher by lazy { TestCoroutineDispatcher() }
 
-    override fun apply(base: Statement?, description: Description?): Statement =
+    override fun apply(base: Statement, description: Description?): Statement =
             object : Statement() {
                 override fun evaluate() {
                     try {
                         Dispatchers.setMain(testDispatcher)
+                        base.evaluate()
                     } finally {
                         Dispatchers.resetMain()
                         testDispatcher.cleanupTestCoroutines()
