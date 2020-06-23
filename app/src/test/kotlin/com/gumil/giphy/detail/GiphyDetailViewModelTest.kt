@@ -8,10 +8,12 @@ import com.gumil.giphy.ImageItem
 import com.gumil.giphy.R
 import com.gumil.giphy.TestRepository
 import com.gumil.giphy.TestDispatcherRule
-import dev.gumil.kaskade.flow.MutableEmitter
 import io.mockk.confirmVerified
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 
@@ -31,29 +33,25 @@ class GiphyDetailViewModelTest {
     )
 
     @Test
-    fun actionLoadGif() {
+    fun actionLoadGif() = runBlocking {
         viewModel.restore(DetailState.Screen(giphy))
         val observer = mockk<Observer<DetailState>>(relaxed = true)
         viewModel.state.observeForever(observer)
 
-        val emitter = MutableEmitter<DetailAction>()
-        viewModel.process(emitter)
-        emitter.sendValue(DetailAction.GetRandomGif)
+        viewModel.process(flowOf(DetailAction.GetRandomGif)).launchIn(this).join()
 
-        verify(exactly = 2) { observer.onChanged(DetailState.Screen(giphy)) }
+        verify(exactly = 1) { observer.onChanged(DetailState.Screen(giphy)) }
 
         confirmVerified(observer)
     }
 
     @Test
-    fun actionOnError() {
+    fun actionOnError() = runBlocking {
         viewModel.restore(DetailState.Error(1))
         val observer = mockk<Observer<DetailState>>(relaxed = true)
         viewModel.state.observeForever(observer)
 
-        val emitter = MutableEmitter<DetailAction>()
-        viewModel.process(emitter)
-        emitter.sendValue(DetailAction.OnError(Exception()))
+        viewModel.process(flowOf(DetailAction.OnError(Exception()))).launchIn(this).join()
 
         verify(exactly = 1) { observer.onChanged(DetailState.Error(1)) }
         verify(exactly = 1) { observer.onChanged(DetailState.Error(R.string.error_loading_single)) }

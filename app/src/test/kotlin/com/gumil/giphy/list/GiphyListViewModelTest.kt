@@ -10,10 +10,13 @@ import com.gumil.giphy.TestDispatcherRule
 import com.gumil.giphy.TestRepository
 import com.gumil.giphy.UserItem
 import com.gumil.giphy.util.Cache
-import dev.gumil.kaskade.flow.MutableEmitter
+import io.mockk.Ordering
 import io.mockk.confirmVerified
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 
@@ -43,62 +46,63 @@ class GiphyListViewModelTest {
     private val viewModel = GiphyListViewModel(TestRepository(), cache, savedStateHandle)
 
     @Test
-    fun actionRefresh() {
+    fun actionRefresh() = runBlocking {
         val observer = mockk<Observer<ListState>>(relaxed = true)
         viewModel.state.observeForever(observer)
 
-        val emitter = MutableEmitter<ListAction>()
-        viewModel.process(emitter)
-        emitter.sendValue(ListAction.Refresh())
+        viewModel.process(flowOf(ListAction.Refresh())).launchIn(this).join()
 
         verify(exactly = 0) { cache.get<List<GiphyItem>>(any()) }
-        verify(exactly = 1) { observer.onChanged(ListState.Screen(emptyList(), ListState.Mode.IDLE_REFRESH)) }
-        verify(exactly = 1) { observer.onChanged(ListState.Screen(emptyList(), ListState.Mode.REFRESH)) }
-        verify(exactly = 1) { observer.onChanged(ListState.Screen(list, ListState.Mode.IDLE_REFRESH)) }
+        verify(ordering = Ordering.ORDERED) {
+            observer.onChanged(ListState.Screen(list, ListState.Mode.IDLE_REFRESH))
+            observer.onChanged(ListState.Screen(list, ListState.Mode.REFRESH))
+            observer.onChanged(ListState.Screen(list, ListState.Mode.IDLE_REFRESH))
+        }
         confirmVerified(observer)
     }
 
     @Test
-    fun actionLoadMore() {
+    fun actionLoadMore() = runBlocking {
+        val giphies = list.toMutableList().apply { addAll(list) }
         val observer = mockk<Observer<ListState>>(relaxed = true)
         viewModel.state.observeForever(observer)
 
-        val emitter = MutableEmitter<ListAction>()
-        viewModel.process(emitter)
-        emitter.sendValue(ListAction.LoadMore(0))
+        viewModel.process(flowOf(ListAction.LoadMore(0))).launchIn(this).join()
 
-        verify(exactly = 1) { observer.onChanged(ListState.Screen(emptyList(), ListState.Mode.IDLE_REFRESH)) }
-        verify(exactly = 1) { observer.onChanged(ListState.Screen(emptyList(), ListState.Mode.LOAD_MORE)) }
-        verify(exactly = 1) { observer.onChanged(ListState.Screen(list, ListState.Mode.IDLE_LOAD_MORE)) }
         verify(exactly = 1) { cache.save<Any>(any(), any()) }
+        verify(ordering = Ordering.ORDERED) {
+            observer.onChanged(ListState.Screen(list, ListState.Mode.IDLE_REFRESH))
+            observer.onChanged(ListState.Screen(list, ListState.Mode.LOAD_MORE))
+            observer.onChanged(ListState.Screen(giphies, ListState.Mode.IDLE_LOAD_MORE))
+        }
         confirmVerified(observer)
     }
 
     @Test
-    fun actionOnItemClick() {
+    fun actionOnItemClick() = runBlocking {
         val observer = mockk<Observer<ListState>>(relaxed = true)
         viewModel.state.observeForever(observer)
 
-        val emitter = MutableEmitter<ListAction>()
-        viewModel.process(emitter)
-        emitter.sendValue(ListAction.OnItemClick(list[0]))
+        viewModel.process(flowOf(ListAction.OnItemClick(list[0]))).launchIn(this).join()
 
-        verify(exactly = 1) { observer.onChanged(ListState.Screen(emptyList(), ListState.Mode.IDLE_REFRESH)) }
-        verify(exactly = 1) { observer.onChanged(ListState.GoToDetail(list[0])) }
+        verify(ordering = Ordering.ORDERED) {
+            observer.onChanged(ListState.Screen(list, ListState.Mode.IDLE_REFRESH))
+            observer.onChanged(ListState.GoToDetail(list[0]))
+        }
         confirmVerified(observer)
     }
 
     @Test
-    fun actionOnError() {
+    fun actionOnError() = runBlocking {
         val observer = mockk<Observer<ListState>>(relaxed = true)
         viewModel.state.observeForever(observer)
 
-        val emitter = MutableEmitter<ListAction>()
-        viewModel.process(emitter)
-        emitter.sendValue(ListAction.OnError(Exception()))
+        viewModel.process(flowOf(ListAction.OnError(Exception()))).launchIn(this).join()
 
-        verify(exactly = 1) { observer.onChanged(ListState.Screen(emptyList(), ListState.Mode.IDLE_REFRESH)) }
-        verify(exactly = 1) { observer.onChanged(ListState.Error(R.string.error_loading)) }
+        verify(ordering = Ordering.ORDERED) {
+            observer.onChanged(ListState.Screen(list, ListState.Mode.IDLE_REFRESH))
+            observer.onChanged(ListState.Error(R.string.error_loading))
+        }
         confirmVerified(observer)
     }
 }
