@@ -2,7 +2,6 @@ package com.gumil.giphy.list
 
 import androidx.hilt.Assisted
 import androidx.hilt.lifecycle.ViewModelInject
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,13 +10,14 @@ import com.gumil.giphy.R
 import com.gumil.giphy.mapToItem
 import com.gumil.giphy.network.repository.Repository
 import com.gumil.giphy.util.Cache
+import com.gumil.giphy.util.stateDamFlow
+import com.gumil.giphy.util.stateFlow
 import dev.gumil.kaskade.ActionState
 import dev.gumil.kaskade.Kaskade
 import dev.gumil.kaskade.coroutines.coroutines
-import dev.gumil.kaskade.flow.Emitter
-import dev.gumil.kaskade.livedata.stateDamLiveData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flow
@@ -37,9 +37,7 @@ internal class GiphyListViewModel @ViewModelInject constructor(
 
     private val kaskade by lazy { createKaskade() }
 
-    val state: LiveData<ListState> get() = _state
-
-    private val _state by lazy { kaskade.stateDamLiveData() }
+    val state by lazy { kaskade.stateDamFlow(ListState.Screen()) }
 
     init {
         val limit = savedStateHandle.get<Int>(KEY_LIMIT) ?: ListAction.DEFAULT_LIMIT

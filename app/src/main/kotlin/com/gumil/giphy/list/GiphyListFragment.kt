@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.gumil.giphy.GiphyItem
@@ -22,12 +21,14 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flattenMerge
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import reactivecircus.flowbinding.recyclerview.scrollEvents
 import reactivecircus.flowbinding.swiperefreshlayout.refreshes
 
@@ -49,7 +50,6 @@ internal class GiphyListFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var job: Job
-    private val uiScope: CoroutineScope get() = CoroutineScope(Dispatchers.Main + job)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         _binding = FragmentListBinding.inflate(inflater)
@@ -62,8 +62,11 @@ internal class GiphyListFragment : Fragment() {
         initializeViews()
 
         job = Job()
+        val uiScope = CoroutineScope(Dispatchers.Main + job)
 
-        viewModel.state.observe(viewLifecycleOwner, Observer<ListState> { it?.render() })
+        uiScope.launch {
+            viewModel.state.collect { it.render() }
+        }
         viewModel.process(actions()).launchIn(uiScope)
     }
 
@@ -82,7 +85,6 @@ internal class GiphyListFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         job.cancel()
-        viewModel.state.removeObservers(this)
         binding.recyclerView.adapter = null
         _binding = null
     }

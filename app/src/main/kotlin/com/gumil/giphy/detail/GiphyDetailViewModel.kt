@@ -2,16 +2,17 @@ package com.gumil.giphy.detail
 
 import androidx.hilt.Assisted
 import androidx.hilt.lifecycle.ViewModelInject
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gumil.giphy.GiphyItem
+import com.gumil.giphy.ImageItem
 import com.gumil.giphy.R
 import com.gumil.giphy.mapToItem
 import com.gumil.giphy.network.repository.Repository
+import com.gumil.giphy.util.stateDamFlow
 import dev.gumil.kaskade.Kaskade
 import dev.gumil.kaskade.coroutines.coroutines
-import dev.gumil.kaskade.livedata.stateDamLiveData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
@@ -25,9 +26,15 @@ internal class GiphyDetailViewModel @ViewModelInject constructor(
 
     private lateinit var kaskade: Kaskade<DetailAction, DetailState>
 
-    val state: LiveData<DetailState> get() = _state
-
-    private val _state by lazy { kaskade.stateDamLiveData() }
+    val state by lazy {
+        kaskade.stateDamFlow(DetailState.Screen(GiphyItem(
+            title = "title",
+            user = null,
+            image = ImageItem(
+                "", "", 1, 1
+            )
+        )))
+    }
 
     init {
         val state = savedStateHandle.get<DetailState.Screen>(KEY_STATE)
