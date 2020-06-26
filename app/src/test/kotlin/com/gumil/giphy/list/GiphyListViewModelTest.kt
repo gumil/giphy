@@ -15,11 +15,11 @@ import io.mockk.coVerify
 import io.mockk.confirmVerified
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.take
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.yield
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -47,17 +47,24 @@ class GiphyListViewModelTest {
 
     private val savedStateHandle = SavedStateHandle()
 
-    private val viewModel = GiphyListViewModel(TestRepository(), cache, savedStateHandle)
+    private lateinit var viewModel: GiphyListViewModel
 
     @Before
-    fun setUp() = runBlocking {
-        yield() // Make sure to finish up initialization
+    fun setUp() {
+        viewModel = GiphyListViewModel(
+            TestRepository(),
+            cache,
+            savedStateHandle,
+            Dispatchers.Main
+        )
     }
 
     @Test
-    fun actionRefresh() = runBlocking {
+    fun actionRefresh() = runBlockingTest {
         val observer = mockk<(ListState) -> Unit>(relaxed = true)
-        val observerJob = viewModel.state.take(3).collectInTest(this, observer)
+        val observerJob = viewModel.state
+            .take(3)
+            .collectInTest(this, observer)
 
         viewModel.dispatch(flowOf(ListAction.Refresh())).launchIn(this).join()
         observerJob.join()
@@ -72,7 +79,7 @@ class GiphyListViewModelTest {
     }
 
     @Test
-    fun actionLoadMore() = runBlocking {
+    fun actionLoadMore() = runBlockingTest {
         val giphies = list.toMutableList().apply { addAll(list) }
         val observer = mockk<(ListState) -> Unit>(relaxed = true)
         val observerJob = viewModel.state.take(3).collectInTest(this, observer)
@@ -90,7 +97,7 @@ class GiphyListViewModelTest {
     }
 
     @Test
-    fun actionOnItemClick() = runBlocking {
+    fun actionOnItemClick() = runBlockingTest {
         val observer = mockk<(ListState) -> Unit>(relaxed = true)
         val observerJob = viewModel.state.take(2).collectInTest(this, observer)
 
@@ -105,7 +112,7 @@ class GiphyListViewModelTest {
     }
 
     @Test
-    fun actionOnError() = runBlocking {
+    fun actionOnError() = runBlockingTest {
         val observer = mockk<(ListState) -> Unit>(relaxed = true)
         val observerJob = viewModel.state.take(2).collectInTest(this, observer)
 

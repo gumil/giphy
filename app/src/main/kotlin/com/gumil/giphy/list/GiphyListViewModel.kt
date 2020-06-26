@@ -14,6 +14,7 @@ import dev.gumil.kaskade.ActionState
 import dev.gumil.kaskade.Kaskade
 import dev.gumil.kaskade.coroutines.coroutines
 import dev.gumil.kaskade.coroutines.stateDamFlow
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -30,7 +31,8 @@ import timber.log.Timber
 internal class GiphyListViewModel @ViewModelInject constructor(
     private val repository: Repository,
     private val cache: Cache,
-    @Assisted private val savedStateHandle: SavedStateHandle
+    @Assisted private val savedStateHandle: SavedStateHandle,
+    private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
     private val kaskade by lazy { createKaskade() }
@@ -108,7 +110,7 @@ internal class GiphyListViewModel @ViewModelInject constructor(
             Timber.e(it, "Error loading gifs")
             emit(ListState.Error(R.string.error_loading))
         }
-        .flowOn(Dispatchers.IO)
+        .flowOn(ioDispatcher)
     }
 
     override fun onCleared() {
