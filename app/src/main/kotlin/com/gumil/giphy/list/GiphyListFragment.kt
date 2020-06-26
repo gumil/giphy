@@ -67,7 +67,7 @@ internal class GiphyListFragment : Fragment() {
         uiScope.launch {
             viewModel.state.collect { it.render() }
         }
-        viewModel.process(actions()).launchIn(uiScope)
+        viewModel.dispatch(actions()).launchIn(uiScope)
     }
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {

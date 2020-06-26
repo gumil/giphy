@@ -53,7 +53,7 @@ internal class GiphyDetailFragment : Fragment() {
             viewModel.state.collect { it.render() }
         }
 
-        viewModel.process(
+        viewModel.dispatch(
             binding.getGifButton
                 .clicks()
                 .map {

@@ -15,12 +15,12 @@ import io.mockk.coVerify
 import io.mockk.confirmVerified
 import io.mockk.mockk
 import io.mockk.verify
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.take
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.yield
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
@@ -49,12 +49,17 @@ class GiphyListViewModelTest {
 
     private val viewModel = GiphyListViewModel(TestRepository(), cache, savedStateHandle)
 
+    @Before
+    fun setUp() = runBlocking {
+        yield() // Make sure to finish up initialization
+    }
+
     @Test
     fun actionRefresh() = runBlocking {
         val observer = mockk<(ListState) -> Unit>(relaxed = true)
         val observerJob = viewModel.state.take(3).collectInTest(this, observer)
 
-        viewModel.process(flowOf(ListAction.Refresh())).launchIn(this).join()
+        viewModel.dispatch(flowOf(ListAction.Refresh())).launchIn(this).join()
         observerJob.join()
 
         verify(exactly = 0) { cache.get<List<GiphyItem>>(any()) }
@@ -72,7 +77,7 @@ class GiphyListViewModelTest {
         val observer = mockk<(ListState) -> Unit>(relaxed = true)
         val observerJob = viewModel.state.take(3).collectInTest(this, observer)
 
-        viewModel.process(flowOf(ListAction.LoadMore(0))).launchIn(this).join()
+        viewModel.dispatch(flowOf(ListAction.LoadMore(0))).launchIn(this).join()
         observerJob.join()
 
         verify(exactly = 1) { cache.save<Any>(any(), any()) }
@@ -89,7 +94,7 @@ class GiphyListViewModelTest {
         val observer = mockk<(ListState) -> Unit>(relaxed = true)
         val observerJob = viewModel.state.take(2).collectInTest(this, observer)
 
-        viewModel.process(flowOf(ListAction.OnItemClick(list[0]))).launchIn(this).join()
+        viewModel.dispatch(flowOf(ListAction.OnItemClick(list[0]))).launchIn(this).join()
         observerJob.join()
 
         coVerify(ordering = Ordering.ORDERED) {
@@ -104,7 +109,7 @@ class GiphyListViewModelTest {
         val observer = mockk<(ListState) -> Unit>(relaxed = true)
         val observerJob = viewModel.state.take(2).collectInTest(this, observer)
 
-        viewModel.process(flowOf(ListAction.OnError(Exception()))).launchIn(this).join()
+        viewModel.dispatch(flowOf(ListAction.OnError(Exception()))).launchIn(this).join()
         observerJob.join()
 
         coVerify(ordering = Ordering.ORDERED) {

@@ -5,14 +5,12 @@ import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.gumil.giphy.GiphyItem
-import com.gumil.giphy.ImageItem
 import com.gumil.giphy.R
 import com.gumil.giphy.mapToItem
 import com.gumil.giphy.network.repository.Repository
-import com.gumil.giphy.util.stateDamFlow
 import dev.gumil.kaskade.Kaskade
 import dev.gumil.kaskade.coroutines.coroutines
+import dev.gumil.kaskade.coroutines.stateDamFlow
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
@@ -26,15 +24,7 @@ internal class GiphyDetailViewModel @ViewModelInject constructor(
 
     private lateinit var kaskade: Kaskade<DetailAction, DetailState>
 
-    val state by lazy {
-        kaskade.stateDamFlow(DetailState.Screen(GiphyItem(
-            title = "title",
-            user = null,
-            image = ImageItem(
-                "", "", 1, 1
-            )
-        )))
-    }
+    val state by lazy { kaskade.stateDamFlow() }
 
     init {
         val state = savedStateHandle.get<DetailState.Screen>(KEY_STATE)
@@ -67,8 +57,8 @@ internal class GiphyDetailViewModel @ViewModelInject constructor(
         }
     }
 
-    fun process(actions: Flow<DetailAction>): Flow<DetailAction> {
-        return actions.onEach { kaskade.process(it) }
+    fun dispatch(actions: Flow<DetailAction>): Flow<DetailAction> {
+        return actions.onEach { kaskade.dispatch(it) }
     }
 
     override fun onCleared() {

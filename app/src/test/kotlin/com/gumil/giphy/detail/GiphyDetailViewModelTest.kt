@@ -41,7 +41,7 @@ class GiphyDetailViewModelTest {
         val observer = mockk<(DetailState) -> Unit>(relaxed = true)
         val observerJob = viewModel.state.take(1).collectInTest(this, observer)
 
-        viewModel.process(flowOf(DetailAction.GetRandomGif)).launchIn(this).join()
+        viewModel.dispatch(flowOf(DetailAction.GetRandomGif)).launchIn(this).join()
         observerJob.join()
 
         verify(exactly = 1) { observer.invoke(DetailState.Screen(giphy)) }
@@ -54,7 +54,7 @@ class GiphyDetailViewModelTest {
         val observer = mockk<(DetailState) -> Unit>(relaxed = true)
         val observerJob = viewModel.state.take(2).collectInTest(this, observer)
 
-        viewModel.process(flowOf(DetailAction.OnError(Exception()))).launchIn(this).join()
+        viewModel.dispatch(flowOf(DetailAction.OnError(Exception()))).launchIn(this).join()
         observerJob.join()
 
         verify(ordering = Ordering.ORDERED) {

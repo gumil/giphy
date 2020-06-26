@@ -10,14 +10,12 @@ import com.gumil.giphy.R
 import com.gumil.giphy.mapToItem
 import com.gumil.giphy.network.repository.Repository
 import com.gumil.giphy.util.Cache
-import com.gumil.giphy.util.stateDamFlow
-import com.gumil.giphy.util.stateFlow
 import dev.gumil.kaskade.ActionState
 import dev.gumil.kaskade.Kaskade
 import dev.gumil.kaskade.coroutines.coroutines
+import dev.gumil.kaskade.coroutines.stateDamFlow
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flow
@@ -37,15 +35,15 @@ internal class GiphyListViewModel @ViewModelInject constructor(
 
     private val kaskade by lazy { createKaskade() }
 
-    val state by lazy { kaskade.stateDamFlow(ListState.Screen()) }
+    val state by lazy { kaskade.stateDamFlow() }
 
     init {
         val limit = savedStateHandle.get<Int>(KEY_LIMIT) ?: ListAction.DEFAULT_LIMIT
-        kaskade.process(ListAction.Refresh(limit = limit))
+        kaskade.dispatch(ListAction.Refresh(limit = limit))
     }
 
-    fun process(actions: Flow<ListAction>): Flow<ListAction> {
-        return actions.onEach { kaskade.process(it) }
+    fun dispatch(actions: Flow<ListAction>): Flow<ListAction> {
+        return actions.onEach { kaskade.dispatch(it) }
     }
 
     private fun createKaskade() = Kaskade.create<ListAction, ListState>(ListState.Screen()) {

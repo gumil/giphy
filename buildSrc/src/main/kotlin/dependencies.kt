@@ -7,7 +7,7 @@ object versions {
     const val retrofit = "2.9.0"
     const val okhttp = "4.7.2"
     const val dagger = "2.28"
-    const val kaskade = "0.3.8"
+    const val kaskade = "0.4.0"
     const val lifecycle = "2.2.0"
     const val livedataTesting = "2.0.0"
     const val navigation = "2.2.2"
